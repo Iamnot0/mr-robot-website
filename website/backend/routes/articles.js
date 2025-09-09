@@ -218,7 +218,7 @@ router.get('/id/:id', async (req, res) => {
              external_link, category, source, is_published, 
              published_at, created_at, updated_at
       FROM articles 
-      WHERE id = ?
+      WHERE id = $1
     `, [id]);
     
     if (articles.length === 0) {
@@ -256,7 +256,7 @@ router.get('/:slug', async (req, res) => {
              external_link, category, source, is_published, 
              published_at, created_at, updated_at
       FROM articles 
-      WHERE slug = ? AND is_published = true
+      WHERE slug = $1 AND is_published = true
     `, [slug]);
     
     if (articles.length === 0) {
@@ -312,13 +312,13 @@ router.post('/', async (req, res) => {
     // Insert article into database
     const result = await executeQuery(`
       INSERT INTO articles (title, description, content, slug, category, source, is_published, published_at, thumbnail_url, external_link)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id
     `, [title, description, content, slug, category || 'Computer Science', source || 'admin', is_published !== false, new Date(), finalThumbnailUrl || null, external_link || null]);
     
     res.json({
       success: true,
       message: 'Article created successfully',
-      data: { id: result.insertId, slug, thumbnail_url: finalThumbnailUrl }
+      data: { id: result[0].id, slug, thumbnail_url: finalThumbnailUrl }
     });
     
   } catch (error) {
@@ -338,7 +338,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     
     // Check if article exists
-    const articles = await executeQuery('SELECT id FROM articles WHERE id = ?', [id]);
+    const articles = await executeQuery('SELECT id FROM articles WHERE id = $1', [id]);
     if (articles.length === 0) {
       return res.status(404).json({
         success: false,
@@ -347,7 +347,7 @@ router.delete('/:id', async (req, res) => {
     }
     
     // Delete article
-    await executeQuery('DELETE FROM articles WHERE id = ?', [id]);
+    await executeQuery('DELETE FROM articles WHERE id = $1', [id]);
     
     res.json({
       success: true,
@@ -379,7 +379,7 @@ router.put('/:id', async (req, res) => {
     }
     
     // Check if article exists and get current slug
-    const articles = await executeQuery('SELECT id, slug FROM articles WHERE id = ?', [id]);
+    const articles = await executeQuery('SELECT id, slug FROM articles WHERE id = $1', [id]);
     if (articles.length === 0) {
       return res.status(404).json({
         success: false,
@@ -401,9 +401,9 @@ router.put('/:id', async (req, res) => {
     // Update article
     await executeQuery(`
       UPDATE articles 
-      SET title = ?, description = ?, content = ?, category = ?, is_published = ?, 
-          thumbnail_url = ?, external_link = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
+      SET title = $1, description = $2, content = $3, category = $4, is_published = $5, 
+          thumbnail_url = $6, external_link = $7, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $8
     `, [title, description, content, category || 'Computer Science', is_published !== false, 
         finalThumbnailUrl || null, external_link || null, id]);
     

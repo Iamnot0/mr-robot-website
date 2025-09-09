@@ -32,13 +32,13 @@ router.post('/submit', [
 
     // Create new submission in database
     const result = await executeQuery(
-      'INSERT INTO contact_submissions (name, email, phone, subject, message, is_read) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO contact_submissions (name, email, phone, subject, message, is_read) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
       [name, email, phone || null, service || null, message, false]
     );
 
     res.status(201).json({
       success: true,
-      data: { id: result.insertId },
+      data: { id: result[0].id },
       message: 'Contact form submitted successfully. We will respond within 2-4 hours.'
     });
 
@@ -62,7 +62,7 @@ router.get('/submissions', async (req, res) => {
     let queryParams = [];
     
     if (status) {
-      whereClause = 'WHERE status = ?';
+      whereClause = 'WHERE status = $1';
       queryParams.push(status);
     }
     
@@ -72,11 +72,13 @@ router.get('/submissions', async (req, res) => {
     const total = countResult[0].total;
     
     // Get submissions
+    const limitParam = queryParams.length + 1;
+    const offsetParam = queryParams.length + 2;
     const submissionsQuery = `
       SELECT * FROM contact_submissions 
       ${whereClause}
       ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT $${limitParam} OFFSET $${offsetParam}
     `;
     
     const submissions = await executeQuery(submissionsQuery, [...queryParams, parseInt(limit), parseInt(offset)]);
@@ -122,13 +124,13 @@ router.patch('/submissions/:id', [
     const { id } = req.params;
     const { status } = req.body;
 
-    const [result] = await pool.execute(`
+    const result = await executeQuery(`
       UPDATE contact_submissions 
-      SET status = ?, updated_at = CURRENT_TIMESTAMP 
-      WHERE id = ?
+      SET status = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2
     `, [status, id]);
 
-    if (result.affectedRows === 0) {
+    if (result.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Contact submission not found'
@@ -154,19 +156,19 @@ router.patch('/submissions/:id', [
 // ========================================
 router.get('/stats', async (req, res) => {
   try {
-    const [stats] = await pool.execute(`
+    const stats = await executeQuery(`
       SELECT 
         COUNT(*) as total_submissions,
         COUNT(CASE WHEN status = 'new' THEN 1 END) as new_submissions,
         COUNT(CASE WHEN status = 'contacted' THEN 1 END) as contacted_submissions,
         COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved_submissions,
         COUNT(CASE WHEN urgency = 'emergency' THEN 1 END) as emergency_submissions,
-        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as today_submissions,
-        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as week_submissions
+        COUNT(CASE WHEN created_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as today_submissions,
+        COUNT(CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN 1 END) as week_submissions
       FROM contact_submissions
     `);
 
-    const [urgencyStats] = await pool.execute(`
+    const urgencyStats = await executeQuery(`
       SELECT urgency, COUNT(*) as count
       FROM contact_submissions 
       GROUP BY urgency

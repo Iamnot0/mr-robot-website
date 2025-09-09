@@ -29,21 +29,21 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
     let queryParams = [];
     
     if (search) {
-      whereConditions.push('(name LIKE ? OR email LIKE ? OR phone LIKE ?)');
+      whereConditions.push('(name LIKE $' + (queryParams.length + 1) + ' OR email LIKE $' + (queryParams.length + 2) + ' OR phone LIKE $' + (queryParams.length + 3) + ')');
       queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
     
     if (role) {
-      whereConditions.push('role = ?');
+      whereConditions.push('role = $' + (queryParams.length + 1));
       queryParams.push(role);
     }
     
     if (status) {
-      whereConditions.push('status = ?');
+      whereConditions.push('status = $' + (queryParams.length + 1));
       queryParams.push(status);
     }
     
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+    const whereClause = whereConditions.length > 0 $1 `WHERE ${whereConditions.join(' AND ')}` : '';
     
     // Get total count
     const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
@@ -56,7 +56,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       FROM users 
       ${whereClause}
       ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
     `;
     
     const users = await executeQuery(usersQuery, [...queryParams, parseInt(limit), offset]);
@@ -105,7 +105,7 @@ router.post('/', verifyToken, requireAdmin, [
     const { name, email, role, status } = req.body;
 
     // Check if user already exists
-    const existingUsers = await executeQuery('SELECT id FROM users WHERE email = ?', [email]);
+    const existingUsers = await executeQuery('SELECT id FROM users WHERE email = $1', [email]);
     if (existingUsers.length > 0) {
       return res.status(409).json({
         success: false,
@@ -121,14 +121,14 @@ router.post('/', verifyToken, requireAdmin, [
     // Insert new user
     const result = await executeQuery(`
       INSERT INTO users (name, email, password_hash, role, status)
-      VALUES (?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5) RETURNING id
     `, [name, email, hashedPassword, role, status]);
 
     res.json({
       success: true,
       message: 'User created successfully',
       data: { 
-        id: result.insertId,
+        id: result[0].id,
         name,
         email,
         role,
@@ -175,7 +175,7 @@ router.put('/profile', verifyToken, [
     
     Object.keys(updateData).forEach(key => {
       if (updateData[key] !== undefined && updateData[key] !== null) {
-        updateFields.push(`${key} = ?`);
+        updateFields.push(`${key} = $1`);
         updateValues.push(updateData[key]);
       }
     });
@@ -190,14 +190,14 @@ router.put('/profile', verifyToken, [
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
     
-    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $1`;
     updateValues.push(userId);
     
     await executeQuery(updateQuery, updateValues);
     
     // Get updated user
     const updatedUsers = await executeQuery(
-      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = ?',
+      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = $1',
       [userId]
     );
     
@@ -274,7 +274,7 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
     const { id } = req.params;
     
     const users = await executeQuery(
-      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = ?',
+      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = $1',
       [id]
     );
     
@@ -321,7 +321,7 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     
     // Check if user exists
     const existingUsers = await executeQuery(
-      'SELECT id FROM users WHERE id = ?',
+      'SELECT id FROM users WHERE id = $1',
       [id]
     );
     
@@ -335,7 +335,7 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     // Check if email is being changed and if it's already taken
     if (updateData.email) {
       const emailCheck = await executeQuery(
-        'SELECT id FROM users WHERE email = ? AND id != ?',
+        'SELECT id FROM users WHERE email = $1 AND id != $1',
         [updateData.email, id]
       );
       
@@ -353,7 +353,7 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     
     Object.keys(updateData).forEach(key => {
       if (updateData[key] !== undefined && updateData[key] !== null) {
-        updateFields.push(`${key} = ?`);
+        updateFields.push(`${key} = $1`);
         updateValues.push(updateData[key]);
       }
     });
@@ -368,14 +368,14 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
     
-    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $1`;
     updateValues.push(id);
     
     await executeQuery(updateQuery, updateValues);
     
     // Get updated user
     const updatedUsers = await executeQuery(
-      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = ?',
+      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at, updated_at FROM users WHERE id = $1',
       [id]
     );
     
@@ -405,7 +405,7 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     
     // Check if user exists
     const existingUsers = await executeQuery(
-      'SELECT id, role FROM users WHERE id = ?',
+      'SELECT id, role FROM users WHERE id = $1',
       [id]
     );
     
@@ -433,7 +433,7 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     }
     
     // Delete user (cascade will handle related records)
-    await executeQuery('DELETE FROM users WHERE id = ?', [id]);
+    await executeQuery('DELETE FROM users WHERE id = $1', [id]);
     
     res.json({
       success: true,
@@ -471,7 +471,7 @@ router.post('/:id/status', verifyToken, requireAdmin, [
     
     // Check if user exists
     const existingUsers = await executeQuery(
-      'SELECT id FROM users WHERE id = ?',
+      'SELECT id FROM users WHERE id = $1',
       [id]
     );
     
@@ -484,7 +484,7 @@ router.post('/:id/status', verifyToken, requireAdmin, [
     
     // Update status
     await executeQuery(
-      'UPDATE users SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE users SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
       [status, id]
     );
     

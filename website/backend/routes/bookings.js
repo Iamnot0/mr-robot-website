@@ -48,7 +48,7 @@ router.post('/', [
       `INSERT INTO bookings (
         user_id, customer_name, customer_email, customer_phone, service_id, 
         device_type, issue_description, urgency, preferred_date, notes, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
       [
         user_id || null, customer_name, customer_email, customer_phone || null, parseInt(service_id),
         device_type, issue_description, urgency, preferred_date || null, 
@@ -58,7 +58,7 @@ router.post('/', [
 
     res.status(201).json({
       success: true,
-      data: { id: result.insertId },
+      data: { id: result[0].id },
       message: 'Booking created successfully. We will contact you within 2-4 hours.'
     });
 
@@ -82,12 +82,12 @@ router.get('/', async (req, res) => {
     let queryParams = [];
     
     if (status) {
-      whereConditions.push('status = ?');
+      whereConditions.push('status = $' + (queryParams.length + 1));
       queryParams.push(status);
     }
     
     if (urgency) {
-      whereConditions.push('urgency = ?');
+      whereConditions.push('urgency = $' + (queryParams.length + 1));
       queryParams.push(urgency);
     }
     
@@ -99,13 +99,15 @@ router.get('/', async (req, res) => {
     const total = countResult[0].total;
     
     // Get bookings with service and user info
+    const limitParam = queryParams.length + 1;
+    const offsetParam = queryParams.length + 2;
     const bookingsQuery = `
       SELECT b.*, s.name as service_name, s.price as service_price
       FROM bookings b
       LEFT JOIN services s ON b.service_id = s.id
       ${whereClause}
       ORDER BY b.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT $${limitParam} OFFSET $${offsetParam}
     `;
     
     const bookings = await executeQuery(bookingsQuery, [...queryParams, parseInt(limit), parseInt(offset)]);
@@ -143,7 +145,7 @@ router.get('/user/:userId', async (req, res) => {
       SELECT b.*, s.name as service_name, s.price as service_price
       FROM bookings b
       LEFT JOIN services s ON b.service_id = s.id
-      WHERE b.user_id = ?
+      WHERE b.user_id = $1
       ORDER BY b.created_at DESC
     `, [userId]);
     
@@ -170,13 +172,13 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const [bookings] = await executeQuery(`
+    const bookings = await executeQuery(`
       SELECT b.*, u.name as user_name, u.email as user_email, u.phone as user_phone,
              s.name as service_name, s.description as service_description, s.price as service_price
       FROM bookings b
       LEFT JOIN users u ON b.user_id = u.id
       LEFT JOIN services s ON b.service_id = s.id
-      WHERE b.id = ?
+      WHERE b.id = $1
     `, [id]);
 
     if (bookings.length === 0) {
@@ -225,9 +227,9 @@ router.patch('/:id', [
     const updateFields = [];
     const params = [];
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key, index) => {
       if (['status', 'cost', 'notes', 'scheduled_date', 'completed_date'].includes(key)) {
-        updateFields.push(`${key} = ?`);
+        updateFields.push(`${key} = $${index + 1}`);
         params.push(updates[key]);
       }
     });
@@ -242,11 +244,11 @@ router.patch('/:id', [
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
     params.push(id);
 
-    const [result] = await executeQuery(`
-      UPDATE bookings SET ${updateFields.join(', ')} WHERE id = ?
+    const result = await executeQuery(`
+      UPDATE bookings SET ${updateFields.join(', ')} WHERE id = $${params.length}
     `, params);
 
-    if (result.affectedRows === 0) {
+    if (result.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
@@ -272,7 +274,7 @@ router.patch('/:id', [
 // ========================================
 router.get('/stats/summary', async (req, res) => {
   try {
-    const [stats] = await executeQuery(`
+    const stats = await executeQuery(`
       SELECT 
         COUNT(*) as total_bookings,
         COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_bookings,
@@ -281,17 +283,17 @@ router.get('/stats/summary', async (req, res) => {
         COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_bookings,
         COUNT(CASE WHEN urgency = 'emergency' THEN 1 END) as emergency_bookings,
         AVG(cost) as average_cost,
-        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as today_bookings
+        COUNT(CASE WHEN created_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as today_bookings
       FROM bookings
     `);
 
-    const [urgencyStats] = await executeQuery(`
+    const urgencyStats = await executeQuery(`
       SELECT urgency, COUNT(*) as count
       FROM bookings 
       GROUP BY urgency
     `);
 
-    const [statusStats] = await executeQuery(`
+    const statusStats = await executeQuery(`
       SELECT status, COUNT(*) as count
       FROM bookings 
       GROUP BY status
