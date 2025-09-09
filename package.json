@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MR-ROBOT Computer Service Website",
   "scripts": {
-    "build": "./build.sh",
+    "build": "cd website/fronted && npm install && npm run build",
     "start": "cd website/fronted && npm start"
   },
   "engines": {
