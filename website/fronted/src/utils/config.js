@@ -1,7 +1,7 @@
 // Configuration utility for API endpoints and other settings
 
 // Use Render backend for production, local backend for development
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
+export const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://mr-robot-backend.onrender.com' // Use Render backend
   : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
 
