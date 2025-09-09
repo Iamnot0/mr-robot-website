@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS } from '../utils/config';
+import { API_ENDPOINTS, API_BASE_URL } from '../utils/config';
 import { useCategories } from '../contexts/CategoryContext';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -410,7 +410,11 @@ const Knowledge = () => {
                             <>
                               <div className="relative h-48 bg-mr-blue-light overflow-hidden">
                                 <img 
-                                  src={article.thumbnail_url || '/logo2.png'} 
+                                  src={article.thumbnail_url ? 
+                                    (article.thumbnail_url.startsWith('http') ? 
+                                      article.thumbnail_url : 
+                                      `${API_BASE_URL}${article.thumbnail_url}`) : 
+                                    '/logo2.png'} 
                                   alt={article.title}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -452,7 +456,11 @@ const Knowledge = () => {
                             <>
                               <div className="w-48 h-32 bg-mr-blue-light flex-shrink-0 overflow-hidden">
                                 <img 
-                                  src={article.thumbnail_url || '/logo2.png'} 
+                                  src={article.thumbnail_url ? 
+                                    (article.thumbnail_url.startsWith('http') ? 
+                                      article.thumbnail_url : 
+                                      `${API_BASE_URL}${article.thumbnail_url}`) : 
+                                    '/logo2.png'} 
                                   alt={article.title}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {

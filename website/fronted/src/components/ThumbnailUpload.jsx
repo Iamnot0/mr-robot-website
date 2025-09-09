@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { API_ENDPOINTS } from '../utils/config';
+import { API_ENDPOINTS, API_BASE_URL } from '../utils/config';
 import { useToast } from '../hooks/use-toast';
 import { 
   Upload, 
@@ -68,7 +68,11 @@ const ThumbnailUpload = ({ value, onChange, disabled = false }) => {
 
       if (result.success) {
         onChange(result.data.path);
-        setPreview(result.data.path);
+        // Set preview with full URL for display
+        const fullUrl = result.data.path.startsWith('http') ? 
+          result.data.path : 
+          `${API_BASE_URL}${result.data.path}`;
+        setPreview(fullUrl);
         toast({
           title: "Upload Successful",
           description: "Thumbnail uploaded successfully"
