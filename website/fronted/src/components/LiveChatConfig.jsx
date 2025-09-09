@@ -96,6 +96,11 @@ const LiveChatConfig = () => {
   };
 
   const getAIResponse = async (userMessage) => {
+    // Check if API key is available
+    if (!config.OPENAI_API_KEY || config.OPENAI_API_KEY === '') {
+      return getSmartFallbackResponse(userMessage);
+    }
+
     try {
       const response = await fetch(config.OPENAI_API_URL, {
         method: 'POST',
@@ -128,8 +133,40 @@ const LiveChatConfig = () => {
       return data.choices[0].message.content;
     } catch (error) {
       console.error('AI Response Error:', error);
-      return config.FALLBACK_MESSAGES[Math.floor(Math.random() * config.FALLBACK_MESSAGES.length)];
+      return getSmartFallbackResponse(userMessage);
     }
+  };
+
+  const getSmartFallbackResponse = (userMessage) => {
+    const message = userMessage.toLowerCase();
+    
+    // Service booking responses
+    if (message.includes('book') || message.includes('service') || message.includes('repair')) {
+      return "I'd be happy to help you book a computer repair service! We offer comprehensive repair services including hardware repair, software issues, virus removal, and data recovery. Please contact us directly at 09790525598 or mr.robotcomputerservice@gmail.com to schedule your service. We provide FREE diagnostics for all services!";
+    }
+    
+    // Pricing inquiries
+    if (message.includes('price') || message.includes('cost') || message.includes('quote')) {
+      return "Here are our current service prices in MMK:\n\n• General Troubleshooting: 20,000 MMK\n• Software Installation: 10,000 MMK\n• Virus Removal: 8.33 MMK\n• OS Installation: 20,000 MMK\n• Hardware Upgrades: 15,000 MMK\n• Data Recovery: 30,000 MMK\n\nAll services include FREE diagnostics! Contact us at 09790525598 for a detailed quote.";
+    }
+    
+    // Emergency/urgent requests
+    if (message.includes('urgent') || message.includes('emergency') || message.includes('immediate')) {
+      return "I understand you have an urgent computer issue! For immediate assistance, please call us directly at 09790525598. We offer emergency repair services and will do our best to help you as quickly as possible.";
+    }
+    
+    // General help
+    if (message.includes('help') || message.includes('problem') || message.includes('issue')) {
+      return "I'm here to help with your computer problems! We specialize in hardware repair, software issues, virus removal, data recovery, and system upgrades. For immediate assistance, please call 09790525598 or email mr.robotcomputerservice@gmail.com. We provide FREE diagnostics for all services!";
+    }
+    
+    // Contact information requests
+    if (message.includes('contact') || message.includes('phone') || message.includes('email')) {
+      return "You can reach us at:\n\n📞 Phone: 09790525598\n📧 Email: mr.robotcomputerservice@gmail.com\n\nWe're here to help with all your computer repair needs!";
+    }
+    
+    // Default helpful response
+    return "Thank you for contacting MR-ROBOT Computer Repair! I'm here to help with your computer needs. For immediate assistance, please call us at 09790525598 or email mr.robotcomputerservice@gmail.com. We provide FREE diagnostics and competitive pricing for all our services!";
   };
 
   const handleSendMessage = async () => {
@@ -160,14 +197,15 @@ const LiveChatConfig = () => {
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      const errorMessage = {
+      const fallbackResponse = getSmartFallbackResponse(newMessage);
+      const botMessage = {
         id: Date.now() + 1,
-        text: "I'm sorry, I'm having trouble processing your request right now. Please try again or contact our support team directly.",
+        text: fallbackResponse,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text'
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, botMessage]);
     } finally {
       setIsTyping(false);
     }
