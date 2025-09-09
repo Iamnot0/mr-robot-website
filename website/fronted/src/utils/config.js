@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
   USER_PROFILE: `${API_BASE_URL}/api/users/profile`,
   
   // Admin endpoints
+  ADMIN_DASHBOARD: `${API_BASE_URL}/api/admin/dashboard`,
   ADMIN_ANALYTICS: `${API_BASE_URL}/api/admin/analytics`,
   ADMIN_SERVICES: `${API_BASE_URL}/api/admin/services`,
   ADMIN_USERS: `${API_BASE_URL}/api/users`,

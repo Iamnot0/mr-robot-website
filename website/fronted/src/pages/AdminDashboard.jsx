@@ -48,6 +48,14 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalServices: 0,
+    totalCategories: 0,
+    totalArticles: 0,
+    totalUsers: 0,
+    totalBookings: 0,
+    totalContacts: 0
+  });
   const [loading, setLoading] = useState(false);
 
   // Form states
@@ -103,6 +111,17 @@ const AdminDashboard = () => {
           variant: "destructive"
         });
         return;
+      }
+
+      // Fetch dashboard stats
+      const dashboardResponse = await fetch(API_ENDPOINTS.ADMIN_DASHBOARD, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dashboardData = await dashboardResponse.json();
+      if (dashboardData.success) {
+        setDashboardStats(dashboardData.data.stats);
+        setServices(dashboardData.data.recentServices || []);
+        setArticles(dashboardData.data.recentArticles || []);
       }
 
       // Fetch services
@@ -567,7 +586,7 @@ const AdminDashboard = () => {
             <Package className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(services) ? services.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalServices}</div>
             <p className="text-xs text-muted-foreground">Active services</p>
           </CardContent>
         </Card>
@@ -581,7 +600,7 @@ const AdminDashboard = () => {
             <Database className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(serviceCategories) ? serviceCategories.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalCategories}</div>
             <p className="text-xs text-muted-foreground">Service categories</p>
           </CardContent>
         </Card>
@@ -595,7 +614,7 @@ const AdminDashboard = () => {
             <FileText className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(articles) ? articles.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalArticles}</div>
             <p className="text-xs text-muted-foreground">Knowledge base articles</p>
           </CardContent>
         </Card>
@@ -609,7 +628,7 @@ const AdminDashboard = () => {
             <Users className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(users) ? users.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalUsers}</div>
             <p className="text-xs text-muted-foreground">Registered users</p>
           </CardContent>
         </Card>
@@ -623,7 +642,7 @@ const AdminDashboard = () => {
             <Calendar className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(bookings) ? bookings.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalBookings}</div>
             <p className="text-xs text-muted-foreground">Service requests</p>
           </CardContent>
         </Card>
@@ -637,7 +656,7 @@ const AdminDashboard = () => {
             <Mail className="h-4 w-4 text-mr-cerulean" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Array.isArray(contacts) ? contacts.length : 0}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalContacts}</div>
             <p className="text-xs text-muted-foreground">Contact submissions</p>
           </CardContent>
         </Card>
