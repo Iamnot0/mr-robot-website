@@ -38,7 +38,7 @@ const verifyAdminToken = async (req, res, next) => {
 
 // Admin Login
 router.post('/login', [
-  body('username').trim().isLength({ min: 3, max: 50 }).withMessage('Username must be between 3 and 50 characters'),
+  body('username').trim().isLength({ min: 3, max: 100 }).withMessage('Username must be between 3 and 100 characters'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
 ], async (req, res) => {
   try {
