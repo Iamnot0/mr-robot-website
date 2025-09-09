@@ -2,13 +2,15 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Redirecting...</title>
+    <title>Mr Robot Computer Repair</title>
     <script>
         // Redirect to index.html for client-side routing
-        window.location.replace('/index.html');
+        // Preserve the current path for React Router
+        const currentPath = window.location.pathname;
+        window.location.replace('/index.html' + (currentPath !== '/' ? '#' + currentPath : ''));
     </script>
 </head>
 <body>
-    <p>Redirecting...</p>
+    <p>Loading...</p>
 </body>
 </html>
