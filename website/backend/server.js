@@ -196,6 +196,71 @@ app.use((err, req, res, next) => {
 });
 
 /* SERVER START */
+// Setup user01 endpoint
+app.post('/api/setup-user01', async (req, res) => {
+  try {
+    const { executeQuery } = require('./database/connection');
+    const bcrypt = require('bcryptjs');
+
+    // Check if user01 already exists
+    const existingUsers = await executeQuery('SELECT * FROM users WHERE email = $1', ['user01@gmail.com']);
+
+    if (existingUsers.length > 0) {
+      return res.json({
+        success: true,
+        message: 'User01 already exists',
+        user: existingUsers[0]
+      });
+    }
+
+    // Create user01 with password "user123"
+    const passwordHash = await bcrypt.hash('user123', 12);
+
+    const result = await executeQuery(`
+      INSERT INTO users (name, email, password_hash, role, status)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, ['User01', 'user01@gmail.com', passwordHash, 'client', 'active']);
+
+    res.json({
+      success: true,
+      message: 'User01 created successfully',
+      user: result[0]
+    });
+
+  } catch (error) {
+    console.error('Setup user01 error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create user01',
+      error: error.message
+    });
+  }
+});
+
+// List all users endpoint
+app.get('/api/list-users', async (req, res) => {
+  try {
+    const { executeQuery } = require('./database/connection');
+
+    const users = await executeQuery('SELECT id, name, email, role, status, created_at FROM users ORDER BY created_at');
+
+    res.json({
+      success: true,
+      data: users,
+      message: 'Users retrieved successfully'
+    });
+
+  } catch (error) {
+    console.error('List users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to list users',
+      error: error.message
+    });
+  }
+});
+
 const startServer = async () => {
   try {
     await initializeDatabase();
