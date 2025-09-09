@@ -77,8 +77,8 @@ app.use(compression());
 app.use(morgan('combined'));
 
 // Enhanced CORS for better security - Environment configurable
-const corsOrigins = process.env.CORS_ORIGINS 
-  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+const corsOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : ['http://localhost:3000', 'http://192.168.1.13:3000'];
 
 app.use(cors({
