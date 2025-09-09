@@ -23,7 +23,7 @@ const verifyAdminToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const users = await executeQuery('SELECT * FROM users WHERE id = ? AND role = ? AND status = ?', [decoded.id, 'admin', 'active']);
+    const users = await executeQuery('SELECT * FROM users WHERE id = $1 AND role = $2 AND status = $3', [decoded.id, 'admin', 'active']);
     
     if (users.length === 0) {
       return res.status(401).json({ success: false, message: 'Invalid token' });
@@ -55,7 +55,7 @@ router.post('/login', [
     const { username, password } = req.body;
 
     // Check if username is actually an email or username
-    const users = await executeQuery('SELECT * FROM users WHERE (email = ? OR name = ?) AND role = ? AND status = ?', [username, username, 'admin', 'active']);
+    const users = await executeQuery('SELECT * FROM users WHERE (email = $1 OR name = $2) AND role = $3 AND status = $4', [username, username, 'admin', 'active']);
     
     if (users.length === 0) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
