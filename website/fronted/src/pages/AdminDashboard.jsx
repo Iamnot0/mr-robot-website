@@ -146,12 +146,8 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const usersData = await usersResponse.json();
-      console.log('Users API response:', usersData);
       if (usersData.success) {
         setUsers(usersData.data.users || []);
-        console.log('Users set:', usersData.data.users);
-      } else {
-        console.error('Users API error:', usersData.message);
       }
 
       // Fetch bookings from database
@@ -1020,13 +1016,7 @@ const AdminDashboard = () => {
     </div>
   );
 
-  const renderUsers = () => {
-    console.log('renderUsers - users state:', users);
-    console.log('renderUsers - users type:', typeof users);
-    console.log('renderUsers - users isArray:', Array.isArray(users));
-    console.log('renderUsers - users length:', users?.length);
-    
-    return (
+  const renderUsers = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">User Management</h2>
@@ -1111,8 +1101,7 @@ const AdminDashboard = () => {
         )}
       </div>
     </div>
-    );
-  };
+  );
 
   const renderBookings = () => (
     <div className="space-y-6">
