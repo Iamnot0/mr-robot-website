@@ -1,37 +1,28 @@
 // Configuration utility for API endpoints and other settings
 
-// Detect if we're on mobile/tablet and use appropriate backend URL
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-const API_BASE_URL = isMobile 
-  ? 'http://192.168.1.13:3001' 
-  : (process.env.REACT_APP_BACKEND_URL || 'https://mr-robot-backend.onrender.com');
+// Use Vercel API routes for production, local backend for development
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '' // Use relative URLs for Vercel API routes
+  : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
 
 export const API_ENDPOINTS = {
-  // Auth endpoints
-  ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
+  // Health check
+  HEALTH: `${API_BASE_URL}/api/health`,
   
   // Services endpoints
   SERVICES: `${API_BASE_URL}/api/services`,
-  ADMIN_SERVICES: `${API_BASE_URL}/api/admin/services`,
-  ADMIN_CATEGORIES: `${API_BASE_URL}/api/admin/categories`,
+  SERVICES_CATEGORIES: `${API_BASE_URL}/api/services/categories`,
   
   // Articles endpoints
-  ARTICLES_MEDIUM: `${API_BASE_URL}/api/articles/medium`,
   ARTICLES: `${API_BASE_URL}/api/articles`,
   
   // Contact endpoints
   CONTACT_SUBMIT: `${API_BASE_URL}/api/contact/submit`,
   BOOKINGS: `${API_BASE_URL}/api/bookings`,
   
-  // User endpoints
+  // Auth endpoints (for future admin features)
+  ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
   USER_PROFILE: `${API_BASE_URL}/api/users/profile`,
-  
-  // Admin endpoints
-  ADMIN_USERS: `${API_BASE_URL}/api/users`,
-  ADMIN_ARTICLES: `${API_BASE_URL}/api/admin/articles`,
-  ADMIN_BOOKINGS: `${API_BASE_URL}/api/admin/bookings`,
-  ADMIN_CONTACTS: `${API_BASE_URL}/api/admin/contacts`,
-  ADMIN_ANALYTICS: `${API_BASE_URL}/api/admin/analytics`,
 };
 
 export const getServiceUrl = (id) => `${API_BASE_URL}/api/admin/services/${id}`;
