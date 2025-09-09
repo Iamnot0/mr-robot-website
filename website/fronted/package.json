@@ -20,7 +20,8 @@
     "class-variance-authority": "^0.7.0",
     "recharts": "^2.8.0",
     "react-dropzone": "^14.2.3",
-    "@radix-ui/react-slot": "^1.0.2"
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-avatar": "^1.0.4"
   },
   "scripts": {
     "start": "react-scripts start",
