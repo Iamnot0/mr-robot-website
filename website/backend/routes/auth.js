@@ -66,7 +66,7 @@ router.post('/register', validateRegistration, async (req, res) => {
 
     // Check if user already exists
     const existingUser = await executeQuery(
-      'SELECT id FROM users WHERE email = ?',
+      'SELECT id FROM users WHERE email = $1',
       [email]
     );
 
@@ -82,14 +82,14 @@ router.post('/register', validateRegistration, async (req, res) => {
 
     // Create user
     const result = await executeQuery(
-      'INSERT INTO users (name, email, password_hash, phone, role, status) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (name, email, password_hash, phone, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
       [name, email, hashedPassword, phone, 'client', 'active']
     );
 
     // Get the created user (without password)
     const newUser = await executeQuery(
-      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at FROM users WHERE id = ?',
-      [result.insertId]
+      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at FROM users WHERE id = $1',
+      [result[0].id]
     );
 
     // Generate token
@@ -132,7 +132,7 @@ router.post('/login', validateLogin, async (req, res) => {
 
     // Find user by email
     const users = await executeQuery(
-      'SELECT id, name, email, password_hash, phone, role, status, picture_url, bio, address, created_at FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, phone, role, status, picture_url, bio, address, created_at FROM users WHERE email = $1',
       [email]
     );
 
@@ -195,7 +195,7 @@ router.get('/me', async (req, res) => {
     const userId = req.user.id;
 
     const users = await executeQuery(
-      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at FROM users WHERE id = ?',
+      'SELECT id, name, email, phone, role, status, picture_url, bio, address, created_at FROM users WHERE id = $1',
       [userId]
     );
 
