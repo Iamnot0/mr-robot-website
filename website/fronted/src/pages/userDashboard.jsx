@@ -61,7 +61,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchUserBookings = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/bookings');
+        const response = await fetch('https://mr-robot-backend.onrender.com/api/bookings');
         if (response.ok) {
           const data = await response.json();
           // Filter bookings for current user (by email for now)
@@ -82,7 +82,7 @@ const UserDashboard = () => {
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const response = await fetch('http://localhost:3001/api/articles');
+        const response = await fetch('https://mr-robot-backend.onrender.com/api/articles');
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.articles) {

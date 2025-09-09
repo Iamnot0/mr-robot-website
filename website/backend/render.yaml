@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: mr-robot-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://mrrobotcomputerrepair.com,https://fronted-ten-self.vercel.app
+
+  - type: pserv
+    name: mr-robot-database
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.mysql
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: mrrobot_db
+      - key: MYSQL_USER
+        value: mrrobot_user
+      - key: MYSQL_PASSWORD
+        generateValue: true

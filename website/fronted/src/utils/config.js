@@ -4,7 +4,7 @@
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const API_BASE_URL = isMobile 
   ? 'http://192.168.1.13:3001' 
-  : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
+  : (process.env.REACT_APP_BACKEND_URL || 'https://mr-robot-backend.onrender.com');
 
 export const API_ENDPOINTS = {
   // Auth endpoints
