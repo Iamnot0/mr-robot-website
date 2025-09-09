@@ -1,19 +1,17 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 require('dotenv').config({ path: './config.env' });
 
-// Database configuration
+// Database configuration for PostgreSQL (Neon)
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT || 5432,
   user: process.env.DB_USER || 'clay',
   password: process.env.DB_PASSWORD || 'IHaveN0L!mitation$',
   database: process.env.DB_NAME || 'MrRobot_ComputerRepair',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  acquireTimeout: 60000,
-  timeout: 60000,
-  reconnect: true
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 };
 
 // Create connection pool
@@ -22,12 +20,12 @@ let pool;
 const initializeDatabase = async () => {
   try {
     // Create pool
-    pool = mysql.createPool(dbConfig);
+    pool = new Pool(dbConfig);
     
     // Test connection
-    const connection = await pool.getConnection();
+    const client = await pool.connect();
     console.log('✅ Database connected successfully');
-    connection.release();
+    client.release();
     
     return pool;
   } catch (error) {
@@ -45,9 +43,10 @@ const getConnection = () => {
 
 const executeQuery = async (query, params = []) => {
   try {
-    const connection = await getConnection();
-    const [results] = await connection.execute(query, params);
-    return results;
+    const client = await getConnection().connect();
+    const result = await client.query(query, params);
+    client.release();
+    return result.rows;
   } catch (error) {
     console.error('Query execution failed:', error.message);
     throw error;
@@ -55,24 +54,24 @@ const executeQuery = async (query, params = []) => {
 };
 
 const executeTransaction = async (queries) => {
-  const connection = await getConnection();
+  const client = await getConnection().connect();
   
   try {
-    await connection.beginTransaction();
+    await client.query('BEGIN');
     
     const results = [];
     for (const { query, params = [] } of queries) {
-      const [result] = await connection.execute(query, params);
-      results.push(result);
+      const result = await client.query(query, params);
+      results.push(result.rows);
     }
     
-    await connection.commit();
+    await client.query('COMMIT');
     return results;
   } catch (error) {
-    await connection.rollback();
+    await client.query('ROLLBACK');
     throw error;
   } finally {
-    connection.release();
+    client.release();
   }
 };
 
