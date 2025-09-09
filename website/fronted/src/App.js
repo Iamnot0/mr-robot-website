@@ -60,7 +60,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <CategoryProvider>
-            <BrowserRouter>
+            <BrowserRouter basename="/">
               <AppContent />
             </BrowserRouter>
           </CategoryProvider>
