@@ -148,46 +148,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Temporary admin setup endpoint (remove after setup)
-app.post('/api/setup-admin', async (req, res) => {
-  try {
-    const { executeQuery } = require('./database/connection');
-    
-    // Check if admin user already exists
-    const existingUsers = await executeQuery('SELECT * FROM users WHERE email = $1', ['mr.robotcomputerservice@gmail.com']);
-    
-    if (existingUsers.length > 0) {
-      return res.json({
-        success: true,
-        message: 'Admin user already exists',
-        user: existingUsers[0]
-      });
-    }
-    
-    // Create admin user with the correct password hash from MySQL dump
-    const passwordHash = '$2a$12$r9wfdKEZW0oVmOQ/w.oH7.ArLoIsnj/JMKVYgBFKPS6J4rGjvYS16';
-    
-    const result = await executeQuery(`
-      INSERT INTO users (name, email, password_hash, role, status)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `, ['clay', 'mr.robotcomputerservice@gmail.com', passwordHash, 'admin', 'active']);
-    
-    res.json({
-      success: true,
-      message: 'Admin user created successfully',
-      user: result[0]
-    });
-    
-  } catch (error) {
-    console.error('Setup admin error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create admin user',
-      error: error.message
-    });
-  }
-});
 
 /* 404 handler */
 app.use('*', (req, res) => {
