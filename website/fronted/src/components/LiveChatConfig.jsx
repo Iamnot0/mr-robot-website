@@ -96,11 +96,6 @@ const LiveChatConfig = () => {
   };
 
   const getAIResponse = async (userMessage) => {
-    // Check if API key is available
-    if (!config.OPENAI_API_KEY || config.OPENAI_API_KEY === '') {
-      return getSmartFallbackResponse(userMessage);
-    }
-
     try {
       const response = await fetch(config.OPENAI_API_URL, {
         method: 'POST',
@@ -133,6 +128,7 @@ const LiveChatConfig = () => {
       return data.choices[0].message.content;
     } catch (error) {
       console.error('AI Response Error:', error);
+      // Fallback to smart responses if AI fails
       return getSmartFallbackResponse(userMessage);
     }
   };
