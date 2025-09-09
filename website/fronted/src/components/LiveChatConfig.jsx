@@ -18,8 +18,7 @@ import {
   Settings,
   Zap,
   AlertCircle,
-  CheckCircle,
-  CircleCheck
+  CheckCircle
 } from 'lucide-react';
 import { getChatConfig } from '../config/chatConfig';
 
@@ -216,7 +215,7 @@ const LiveChatConfig = () => {
                     e.target.nextSibling.style.display = 'block';
                   }}
                 />
-                <CircleCheck className={`h-4 w-4 ${isOnline ? 'text-green-400' : 'text-gray-400'}`} />
+                <CheckCircle className={`h-4 w-4 ${isOnline ? 'text-green-400' : 'text-gray-400'}`} />
                 <CardTitle className="text-sm font-medium">Chat</CardTitle>
               </div>
           </div>
