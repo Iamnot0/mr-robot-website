@@ -2,7 +2,7 @@ services:
   - type: web
     name: mr-robot-frontend
     env: static
-    buildCommand: npm run build
+    buildCommand: cd website/fronted && npm install && npm run build
     staticPublishPath: website/fronted/build
     rewrites:
       - source: /*
