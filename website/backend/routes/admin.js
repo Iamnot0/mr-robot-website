@@ -947,46 +947,7 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
     // Calculate conversion rate
     const conversionRate = totalBookings > 0 ? ((completedBookings / totalBookings) * 100).toFixed(1) : 0;
 
-    // Get popular services with booking counts and revenue
-    const popularServices = await executeQuery(`
-      SELECT 
-        s.name,
-        COUNT(b.id) as bookings,
-        COALESCE(SUM(b.actual_cost), 0) as revenue
-      FROM services s
-      LEFT JOIN bookings b ON s.id = b.service_id
-      GROUP BY s.id, s.name
-      ORDER BY bookings DESC, revenue DESC
-      LIMIT 10
-    `);
-
-    // Get monthly revenue trend (last 12 months)
-    const monthlyRevenue = await executeQuery(`
-      SELECT 
-        TO_CHAR(created_at, 'Mon YYYY') as month,
-        TO_CHAR(created_at, 'YYYY-MM') as sort_date,
-        COALESCE(SUM(actual_cost), 0) as revenue,
-        COUNT(*) as bookings
-      FROM bookings 
-      WHERE created_at >= NOW() - INTERVAL '12 months'
-        AND status = 'completed'
-      GROUP BY TO_CHAR(created_at, 'YYYY-MM')
-      ORDER BY sort_date ASC
-    `);
-
-    // Get customer growth (new customers per month)
-    const customerGrowth = await executeQuery(`
-      SELECT 
-        TO_CHAR(created_at, 'Mon YYYY') as month,
-        TO_CHAR(created_at, 'YYYY-MM') as sort_date,
-        COUNT(DISTINCT customer_email) as customers
-      FROM bookings 
-      WHERE created_at >= NOW() - INTERVAL '12 months'
-      GROUP BY TO_CHAR(created_at, 'YYYY-MM')
-      ORDER BY sort_date ASC
-    `);
-
-    // Get service categories distribution
+    // Get service categories (simplified)
     let serviceCategories = [];
     try {
       const categoriesResult = await executeQuery(`
@@ -999,78 +960,13 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
         GROUP BY sc.id, sc.name
         ORDER BY value DESC
       `);
-      serviceCategories = categoriesResult;
+      serviceCategories = categoriesResult.map((category, index) => ({
+        name: category.name,
+        value: parseInt(category.value) || 0,
+        color: ['#3F708B', '#294157', '#C0D8EE', '#5A8BA8', '#2B5A72'][index % 5]
+      }));
     } catch (error) {
-      console.log('Service categories query failed, trying alternative:', error.message);
-      try {
-        const altResult = await executeQuery(`
-          SELECT 
-            COALESCE(s.category, 'Uncategorized') as name,
-            COUNT(b.id) as value
-          FROM services s
-          LEFT JOIN bookings b ON s.id = b.service_id
-          WHERE s.is_active = true
-          GROUP BY s.category
-          ORDER BY value DESC
-        `);
-        serviceCategories = altResult;
-      } catch (altError) {
-        console.log('Alternative service categories query also failed:', altError.message);
-      }
-    }
-
-    // Get booking status distribution
-    let bookingStatuses = [];
-    try {
-      const statusResult = await executeQuery(`
-        SELECT 
-          COALESCE(status, 'pending') as status,
-          COUNT(*) as count
-        FROM bookings 
-        GROUP BY status
-        ORDER BY count DESC
-      `);
-      bookingStatuses = statusResult;
-    } catch (error) {
-      console.log('Booking statuses query failed:', error.message);
-    }
-
-    // Get recent activity (last 30 days)
-    let recentActivity = [];
-    try {
-      const activityResult = await executeQuery(`
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(*) as bookings,
-          COUNT(DISTINCT customer_email) as unique_customers
-        FROM bookings 
-        WHERE created_at >= NOW() - INTERVAL '30 days'
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `);
-      recentActivity = activityResult;
-    } catch (error) {
-      console.log('Recent activity query failed:', error.message);
-    }
-
-    // Get top customers by booking count
-    let topCustomers = [];
-    try {
-      const customersResult = await executeQuery(`
-        SELECT 
-          COALESCE(customer_name, 'Unknown') as customer_name,
-          COALESCE(customer_email, 'unknown@example.com') as customer_email,
-          COUNT(*) as booking_count,
-          COALESCE(SUM(actual_cost), 0) as total_spent
-        FROM bookings
-        GROUP BY customer_email, customer_name
-        ORDER BY booking_count DESC, total_spent DESC
-        LIMIT 10
-      `);
-      topCustomers = customersResult;
-    } catch (error) {
-      console.log('Top customers query failed:', error.message);
+      console.log('Service categories query failed:', error.message);
     }
 
     res.json({
@@ -1083,36 +979,13 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
           completedBookings: completedBookings,
           conversionRate: parseFloat(conversionRate) || 0
         },
-        popularServices: popularServices.map(service => ({
-          name: service.name,
-          bookings: parseInt(service.bookings) || 0,
-          revenue: parseFloat(service.revenue) || 0
-        })),
-        monthlyRevenue: monthlyRevenue.map(month => ({
-          month: month.month,
-          revenue: parseFloat(month.revenue) || 0,
-          bookings: parseInt(month.bookings) || 0
-        })),
-        customerGrowth: customerGrowth.map(month => ({
-          month: month.month,
-          customers: parseInt(month.customers) || 0
-        })),
-        serviceCategories: serviceCategories.map((category, index) => ({
-          name: category.name,
-          value: parseInt(category.value) || 0,
-          color: ['#3F708B', '#294157', '#C0D8EE', '#5A8BA8', '#2B5A72'][index % 5]
-        })),
-        bookingStatuses: bookingStatuses.map(status => ({
-          status: status.status,
-          count: parseInt(status.count) || 0
-        })),
-        recentActivity: recentActivity,
-        topCustomers: topCustomers.map(customer => ({
-          name: customer.customer_name,
-          email: customer.customer_email,
-          bookings: parseInt(customer.booking_count) || 0,
-          totalSpent: parseFloat(customer.total_spent) || 0
-        }))
+        popularServices: [],
+        monthlyRevenue: [],
+        customerGrowth: [],
+        serviceCategories: serviceCategories,
+        bookingStatuses: [],
+        recentActivity: [],
+        topCustomers: []
       }
     });
 
