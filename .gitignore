@@ -6,6 +6,7 @@ database_schema.sql
 create_missing_tables.sql
 grant_permissions.sql
 setup_database.js
+website/fronted/src/config/chatConfig.js
 
 # Sensitive Documentation
 MrRobot_README.txt
