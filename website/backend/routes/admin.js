@@ -958,4 +958,50 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
   }
 });
 
+// Update client user password (admin only)
+router.post('/update-client-password', verifyAdminToken, async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and new password are required'
+      });
+    }
+    
+    // Hash the new password
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    // Update the user's password
+    const result = await executeQuery(`
+      UPDATE users 
+      SET password_hash = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE email = $2 AND role = 'client'
+      RETURNING id, name, email, role, status
+    `, [hashedPassword, email]);
+    
+    if (result.length > 0) {
+      res.json({
+        success: true,
+        message: 'Client password updated successfully',
+        data: result[0]
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Client user not found'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Update client password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update client password'
+    });
+  }
+});
+
 module.exports = router;
