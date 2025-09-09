@@ -79,7 +79,7 @@ app.use(morgan('combined'));
 // Enhanced CORS for better security - Environment configurable
 const corsOrigins = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000', 'http://192.168.1.13:3000'];
+  : ['http://localhost:3000', 'http://192.168.1.13:3000', 'https://mrrobotcomputerservice.onrender.com'];
 
 app.use(cors({
   origin: corsOrigins,
