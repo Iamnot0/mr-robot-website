@@ -22,14 +22,14 @@ router.get('/', async (req, res) => {
     const services = await executeQuery(`
       SELECT s.*, sc.name as category_name, sc.icon as category_icon, sc.color as category_color
       FROM services s 
-      LEFT JOIN service_categories sc ON s.category = sc.name 
+      LEFT JOIN service_categories sc ON s.category_id = sc.id 
       WHERE s.is_active = true
-      ORDER BY s.sort_order, s.name
+      ORDER BY s.name
     `);
 
     // Group services by category
     const groupedServices = services.reduce((acc, service) => {
-      const category = service.category || 'Other';
+      const category = service.category_name || 'Other';
       if (!acc[category]) {
         acc[category] = {
           category: category,
