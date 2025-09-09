@@ -140,7 +140,8 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     message: 'MR-ROBOT Computer Repair API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    corsOrigins: process.env.CORS_ORIGIN || 'default'
   });
 });
 
