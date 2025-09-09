@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/AuthContext';
+import { API_BASE_URL } from '../utils/config';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
@@ -61,7 +62,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchUserBookings = async () => {
       try {
-        const response = await fetch('https://mr-robot-backend.onrender.com/api/bookings');
+        const response = await fetch(`${API_BASE_URL}/api/bookings`);
         if (response.ok) {
           const data = await response.json();
           // Filter bookings for current user (by email for now)
@@ -82,7 +83,7 @@ const UserDashboard = () => {
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const response = await fetch('https://mr-robot-backend.onrender.com/api/articles');
+        const response = await fetch(`${API_BASE_URL}/api/articles`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.articles) {
