@@ -19,7 +19,7 @@ export const API_ENDPOINTS = {
   BOOKINGS: `${API_BASE_URL}/api/bookings`,
   
   // Auth endpoints
-  ADMIN_LOGIN: `${API_BASE_URL}/api/auth/login`,
+  ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
   USER_PROFILE: `${API_BASE_URL}/api/users/profile`,
 };
 
