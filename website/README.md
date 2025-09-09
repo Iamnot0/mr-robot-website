@@ -128,7 +128,7 @@ MIT License - see LICENSE file for details
 
 ## 🆘 Support
 
-For support, email support@mr-robot.com or create an issue in this repository.
+For support, email mr.robotcomputerservice@gmail.com or create an issue in this repository.
 
 ---
 
