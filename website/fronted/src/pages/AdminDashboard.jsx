@@ -446,7 +446,7 @@ const AdminDashboard = () => {
   };
 
   const deleteService = async (id) => {
-    if (!confirm('Are you sure you want to delete this service?')) return;
+    if (!window.confirm('Are you sure you want to delete this service?')) return;
     
     try {
       const token = localStorage.getItem('adminToken');
@@ -476,7 +476,7 @@ const AdminDashboard = () => {
   };
 
   const deleteCategory = async (id) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+    if (!window.confirm('Are you sure you want to delete this category?')) return;
     
     try {
       const token = localStorage.getItem('adminToken');
