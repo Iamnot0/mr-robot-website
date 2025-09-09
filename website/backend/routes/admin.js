@@ -911,26 +911,27 @@ router.delete('/bookings/:id', verifyAdminToken, async (req, res) => {
 // Get comprehensive analytics data
 router.get('/analytics', verifyAdminToken, async (req, res) => {
   try {
-    // Get total revenue from completed bookings
-    const revenueResult = await executeQuery(
-      'SELECT SUM(actual_cost) as total_revenue, COUNT(*) as completed_bookings FROM bookings WHERE status = "completed" AND actual_cost IS NOT NULL'
-    );
-    const totalRevenue = revenueResult[0].total_revenue || 0;
-    const completedBookings = revenueResult[0].completed_bookings || 0;
+    // Get basic stats first
+    const totalServices = await executeQuery('SELECT COUNT(*) as count FROM services WHERE is_active = true');
+    const totalUsers = await executeQuery('SELECT COUNT(*) as count FROM users WHERE status = $1', ['active']);
+    const totalArticles = await executeQuery('SELECT COUNT(*) as count FROM articles WHERE is_published = true');
+    const totalBookings = await executeQuery('SELECT COUNT(*) as count FROM bookings');
+    const totalContacts = await executeQuery('SELECT COUNT(*) as count FROM contact_submissions');
 
-    // Get total customers (unique users who made bookings)
-    const customersResult = await executeQuery(
-      'SELECT COUNT(DISTINCT customer_email) as total_customers FROM bookings'
-    );
-    const totalCustomers = customersResult[0].total_customers || 0;
+    // Get revenue data (simplified)
+    let totalRevenue = 0;
+    let completedBookings = 0;
+    try {
+      const revenueResult = await executeQuery(
+        "SELECT SUM(actual_cost) as total_revenue, COUNT(*) as completed_bookings FROM bookings WHERE status = 'completed' AND actual_cost IS NOT NULL"
+      );
+      totalRevenue = parseFloat(revenueResult[0]?.total_revenue) || 0;
+      completedBookings = parseInt(revenueResult[0]?.completed_bookings) || 0;
+    } catch (error) {
+      console.log('Revenue query failed, using defaults:', error.message);
+    }
 
-    // Get total bookings
-    const bookingsResult = await executeQuery(
-      'SELECT COUNT(*) as total_bookings FROM bookings'
-    );
-    const totalBookings = bookingsResult[0].total_bookings || 0;
-
-    // Calculate conversion rate (completed / total bookings)
+    // Calculate conversion rate
     const conversionRate = totalBookings > 0 ? ((completedBookings / totalBookings) * 100).toFixed(1) : 0;
 
     // Get popular services with booking counts and revenue
@@ -949,85 +950,124 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
     // Get monthly revenue trend (last 12 months)
     const monthlyRevenue = await executeQuery(`
       SELECT 
-        DATE_FORMAT(created_at, '%b %Y') as month,
-        DATE_FORMAT(created_at, '%Y-%m') as sort_date,
+        TO_CHAR(created_at, 'Mon YYYY') as month,
+        TO_CHAR(created_at, 'YYYY-MM') as sort_date,
         COALESCE(SUM(actual_cost), 0) as revenue,
         COUNT(*) as bookings
       FROM bookings 
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+      WHERE created_at >= NOW() - INTERVAL '12 months'
         AND status = 'completed'
-      GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+      GROUP BY TO_CHAR(created_at, 'YYYY-MM')
       ORDER BY sort_date ASC
     `);
 
     // Get customer growth (new customers per month)
     const customerGrowth = await executeQuery(`
       SELECT 
-        DATE_FORMAT(created_at, '%b %Y') as month,
-        DATE_FORMAT(created_at, '%Y-%m') as sort_date,
+        TO_CHAR(created_at, 'Mon YYYY') as month,
+        TO_CHAR(created_at, 'YYYY-MM') as sort_date,
         COUNT(DISTINCT customer_email) as customers
       FROM bookings 
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-      GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+      WHERE created_at >= NOW() - INTERVAL '12 months'
+      GROUP BY TO_CHAR(created_at, 'YYYY-MM')
       ORDER BY sort_date ASC
     `);
 
     // Get service categories distribution
-    const serviceCategories = await executeQuery(`
-      SELECT 
-        s.category as name,
-        COUNT(b.id) as value
-      FROM services s
-      LEFT JOIN bookings b ON s.id = b.service_id
-      WHERE s.category IS NOT NULL AND s.category != ''
-      GROUP BY s.category
-      ORDER BY value DESC
-    `);
+    let serviceCategories = [];
+    try {
+      const categoriesResult = await executeQuery(`
+        SELECT 
+          sc.name,
+          COUNT(s.id) as value
+        FROM service_categories sc
+        LEFT JOIN services s ON sc.id = s.category_id
+        WHERE sc.is_active = true
+        GROUP BY sc.id, sc.name
+        ORDER BY value DESC
+      `);
+      serviceCategories = categoriesResult;
+    } catch (error) {
+      console.log('Service categories query failed, trying alternative:', error.message);
+      try {
+        const altResult = await executeQuery(`
+          SELECT 
+            COALESCE(s.category, 'Uncategorized') as name,
+            COUNT(b.id) as value
+          FROM services s
+          LEFT JOIN bookings b ON s.id = b.service_id
+          WHERE s.is_active = true
+          GROUP BY s.category
+          ORDER BY value DESC
+        `);
+        serviceCategories = altResult;
+      } catch (altError) {
+        console.log('Alternative service categories query also failed:', altError.message);
+      }
+    }
 
     // Get booking status distribution
-    const bookingStatuses = await executeQuery(`
-      SELECT 
-        status,
-        COUNT(*) as count
-      FROM bookings 
-      GROUP BY status
-      ORDER BY count DESC
-    `);
+    let bookingStatuses = [];
+    try {
+      const statusResult = await executeQuery(`
+        SELECT 
+          COALESCE(status, 'pending') as status,
+          COUNT(*) as count
+        FROM bookings 
+        GROUP BY status
+        ORDER BY count DESC
+      `);
+      bookingStatuses = statusResult;
+    } catch (error) {
+      console.log('Booking statuses query failed:', error.message);
+    }
 
     // Get recent activity (last 30 days)
-    const recentActivity = await executeQuery(`
-      SELECT 
-        DATE(created_at) as date,
-        COUNT(*) as bookings,
-        COUNT(DISTINCT customer_email) as unique_customers
-      FROM bookings 
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-      GROUP BY DATE(created_at)
-      ORDER BY date DESC
-      LIMIT 30
-    `);
+    let recentActivity = [];
+    try {
+      const activityResult = await executeQuery(`
+        SELECT 
+          DATE(created_at) as date,
+          COUNT(*) as bookings,
+          COUNT(DISTINCT customer_email) as unique_customers
+        FROM bookings 
+        WHERE created_at >= NOW() - INTERVAL '30 days'
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+        LIMIT 30
+      `);
+      recentActivity = activityResult;
+    } catch (error) {
+      console.log('Recent activity query failed:', error.message);
+    }
 
     // Get top customers by booking count
-    const topCustomers = await executeQuery(`
-      SELECT 
-        customer_name,
-        customer_email,
-        COUNT(*) as booking_count,
-        COALESCE(SUM(actual_cost), 0) as total_spent
-      FROM bookings
-      GROUP BY customer_email, customer_name
-      ORDER BY booking_count DESC, total_spent DESC
-      LIMIT 10
-    `);
+    let topCustomers = [];
+    try {
+      const customersResult = await executeQuery(`
+        SELECT 
+          COALESCE(customer_name, 'Unknown') as customer_name,
+          COALESCE(customer_email, 'unknown@example.com') as customer_email,
+          COUNT(*) as booking_count,
+          COALESCE(SUM(actual_cost), 0) as total_spent
+        FROM bookings
+        GROUP BY customer_email, customer_name
+        ORDER BY booking_count DESC, total_spent DESC
+        LIMIT 10
+      `);
+      topCustomers = customersResult;
+    } catch (error) {
+      console.log('Top customers query failed:', error.message);
+    }
 
     res.json({
       success: true,
       data: {
         overview: {
-          totalRevenue: parseFloat(totalRevenue) || 0,
-          totalCustomers: parseInt(totalCustomers) || 0,
-          totalBookings: parseInt(totalBookings) || 0,
-          completedBookings: parseInt(completedBookings) || 0,
+          totalRevenue: totalRevenue,
+          totalCustomers: parseInt(totalUsers[0]?.count) || 0,
+          totalBookings: parseInt(totalBookings[0]?.count) || 0,
+          completedBookings: completedBookings,
           conversionRate: parseFloat(conversionRate) || 0
         },
         popularServices: popularServices.map(service => ({
@@ -1053,7 +1093,7 @@ router.get('/analytics', verifyAdminToken, async (req, res) => {
           status: status.status,
           count: parseInt(status.count) || 0
         })),
-        recentActivity,
+        recentActivity: recentActivity,
         topCustomers: topCustomers.map(customer => ({
           name: customer.customer_name,
           email: customer.customer_email,

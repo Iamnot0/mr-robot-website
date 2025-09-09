@@ -1,7 +1,9 @@
 // Configuration utility for API endpoints and other settings
 
-// Always use Render backend for deployed version
-export const API_BASE_URL = 'https://mr-robot-backend.onrender.com';
+// Use local backend for development, production backend for deployed version
+export const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:3001' 
+  : 'https://mr-robot-backend.onrender.com';
 
 export const API_ENDPOINTS = {
   // Health check
@@ -21,6 +23,14 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
   USER_PROFILE: `${API_BASE_URL}/api/users/profile`,
+  
+  // Admin endpoints
+  ADMIN_ANALYTICS: `${API_BASE_URL}/api/admin/analytics`,
+  ADMIN_SERVICES: `${API_BASE_URL}/api/admin/services`,
+  ADMIN_USERS: `${API_BASE_URL}/api/users`,
+  ADMIN_BOOKINGS: `${API_BASE_URL}/api/admin/bookings`,
+  ADMIN_CONTACTS: `${API_BASE_URL}/api/admin/contacts`,
+  ADMIN_CATEGORIES: `${API_BASE_URL}/api/admin/categories`,
 };
 
 export const getServiceUrl = (id) => `${API_BASE_URL}/api/admin/services/${id}`;

@@ -175,7 +175,7 @@ router.put('/profile', verifyToken, [
     
     Object.keys(updateData).forEach(key => {
       if (updateData[key] !== undefined && updateData[key] !== null) {
-        updateFields.push(`${key} = $1`);
+        updateFields.push(`${key} = $${updateValues.length + 1}`);
         updateValues.push(updateData[key]);
       }
     });
@@ -190,7 +190,7 @@ router.put('/profile', verifyToken, [
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
     
-    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $1`;
+    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${updateValues.length + 1}`;
     updateValues.push(userId);
     
     await executeQuery(updateQuery, updateValues);
@@ -241,7 +241,7 @@ router.get('/stats/overview', verifyToken, requireAdmin, async (req, res) => {
     
     // Get recent registrations (last 30 days)
     const recentUsers = await executeQuery(
-      'SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+      'SELECT COUNT(*) as count FROM users WHERE created_at >= NOW() - INTERVAL \'30 days\''
     );
     
     res.json({
@@ -353,7 +353,7 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     
     Object.keys(updateData).forEach(key => {
       if (updateData[key] !== undefined && updateData[key] !== null) {
-        updateFields.push(`${key} = $1`);
+        updateFields.push(`${key} = $${updateValues.length + 1}`);
         updateValues.push(updateData[key]);
       }
     });
@@ -368,7 +368,7 @@ router.put('/:id', verifyToken, requireAdmin, validateUserUpdate, async (req, re
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
     
-    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $1`;
+    const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${updateValues.length + 1}`;
     updateValues.push(id);
     
     await executeQuery(updateQuery, updateValues);
@@ -484,7 +484,7 @@ router.post('/:id/status', verifyToken, requireAdmin, [
     
     // Update status
     await executeQuery(
-      'UPDATE users SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      'UPDATE users SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [status, id]
     );
     
