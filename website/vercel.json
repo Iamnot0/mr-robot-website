@@ -5,19 +5,11 @@
       "src": "fronted/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "fronted/build"
+        "distDir": "build"
       }
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
     {
       "src": "/static/(.*)",
       "headers": {
@@ -26,7 +18,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/fronted/index.html"
+      "dest": "/index.html"
     }
   ]
 }
