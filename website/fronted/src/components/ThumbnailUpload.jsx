@@ -111,7 +111,7 @@ const ThumbnailUpload = ({ value, onChange, disabled = false }) => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileUpload(e.dataTransfer.files[0]);
     }
-  }, []);
+  }, [handleFileUpload]);
 
   // Handle file input change
   const handleFileInputChange = (e) => {
