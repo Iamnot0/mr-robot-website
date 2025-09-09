@@ -342,19 +342,32 @@ router.delete('/articles/:id', verifyAdminToken, async (req, res) => {
 // Get all services
 router.get('/services', verifyAdminToken, async (req, res) => {
   try {
-    const services = await executeQuery(`
-      SELECT s.*, sc.name as category_name 
-      FROM services s 
-      LEFT JOIN service_categories sc ON s.category = sc.name 
-      ORDER BY s.sort_order, s.name
-    `);
+    // Try the original query first, fallback to simple query if it fails
+    let services;
+    try {
+      services = await executeQuery(`
+        SELECT s.*, sc.name as category_name 
+        FROM services s 
+        LEFT JOIN service_categories sc ON s.category_id = sc.id 
+        WHERE s.is_active = true
+        ORDER BY s.created_at DESC
+      `);
+    } catch (error) {
+      console.log('Services query with join failed, trying simple query:', error.message);
+      // Fallback to simple query
+      services = await executeQuery(`
+        SELECT * FROM services 
+        WHERE is_active = true
+        ORDER BY created_at DESC
+      `);
+    }
 
     res.json({
       success: true,
       data: services
     });
   } catch (error) {
-
+    console.error('Get services error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch services' });
   }
 });
