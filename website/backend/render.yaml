@@ -17,7 +17,7 @@ services:
       - key: DB_PORT
         value: 5432
       - key: DB_NAME
-        value: neondb
+        value: MrRobot_ComputerService
       - key: DB_USER
         value: neondb_owner
       - key: DB_PASSWORD
