@@ -382,26 +382,26 @@ router.post('/services', verifyAdminToken, async (req, res) => {
     }
 
     // Check if category exists
-    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = ?', [category]);
+    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = $1', [category]);
     if (existingCategory.length === 0) {
       return res.status(400).json({ success: false, message: 'Category does not exist' });
     }
 
     // Check if service with same name already exists
-    const existingService = await executeQuery('SELECT id FROM services WHERE name = ?', [name]);
+    const existingService = await executeQuery('SELECT id FROM services WHERE name = $1', [name]);
     if (existingService.length > 0) {
       return res.status(400).json({ success: false, message: 'Service with this name already exists' });
     }
 
     const result = await executeQuery(`
       INSERT INTO services (name, description, price, duration, category, icon, features, is_active, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id
     `, [name, description || null, price || null, duration || null, category, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0]);
 
     res.json({
       success: true,
       message: 'Service created successfully',
-      data: { id: result.insertId }
+      data: { id: result[0].id }
     });
   } catch (error) {
 
@@ -729,7 +729,7 @@ router.put('/contacts/:id/read', verifyAdminToken, async (req, res) => {
     const { id } = req.params;
     
     await executeQuery(
-      'UPDATE contact_submissions SET is_read = true WHERE id = ?',
+      'UPDATE contact_submissions SET is_read = true WHERE id = $1',
       [id]
     );
     
@@ -751,8 +751,8 @@ router.delete('/contacts/read', verifyAdminToken, async (req, res) => {
     
     res.json({
       success: true,
-      message: `Successfully deleted ${result.affectedRows} read contact messages`,
-      deleted_count: result.affectedRows
+      message: `Successfully deleted ${result.length} read contact messages`,
+      deleted_count: result.length
     });
   } catch (error) {
     console.error('Delete read contacts error:', error);
@@ -769,11 +769,11 @@ router.delete('/contacts/:id', verifyAdminToken, async (req, res) => {
     const { id } = req.params;
     
     const result = await executeQuery(
-      'DELETE FROM contact_submissions WHERE id = ?',
+      'DELETE FROM contact_submissions WHERE id = $1',
       [id]
     );
     
-    if (result.affectedRows === 0) {
+    if (result.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Contact message not found'
@@ -800,7 +800,7 @@ router.put('/bookings/:id/status', verifyAdminToken, async (req, res) => {
     const { status, notes } = req.body;
     
     await executeQuery(
-      'UPDATE bookings SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE bookings SET status = $1, notes = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
       [status, notes, id]
     );
     
@@ -817,14 +817,14 @@ router.put('/bookings/:id/status', verifyAdminToken, async (req, res) => {
 router.delete('/bookings/completed', verifyAdminToken, async (req, res) => {
   try {
     const result = await executeQuery(
-      'DELETE FROM bookings WHERE status = ?',
+      'DELETE FROM bookings WHERE status = $1',
       ['completed']
     );
     
     res.json({
       success: true,
-      message: `Successfully deleted ${result.affectedRows} completed bookings`,
-      deleted_count: result.affectedRows
+      message: `Successfully deleted ${result.length} completed bookings`,
+      deleted_count: result.length
     });
   } catch (error) {
     console.error('Delete completed bookings error:', error);
@@ -886,7 +886,7 @@ router.delete('/bookings/:id', verifyAdminToken, async (req, res) => {
     
     // First check if booking exists and get user info for logging
     const booking = await executeQuery(
-      'SELECT id, customer_name, customer_email, status FROM bookings WHERE id = ?',
+      'SELECT id, customer_name, customer_email, status FROM bookings WHERE id = $1',
       [id]
     );
     
@@ -899,7 +899,7 @@ router.delete('/bookings/:id', verifyAdminToken, async (req, res) => {
     
     // Delete the booking (will cascade to client profile due to ON DELETE CASCADE)
     const result = await executeQuery(
-      'DELETE FROM bookings WHERE id = ?',
+      'DELETE FROM bookings WHERE id = $1',
       [id]
     );
     
