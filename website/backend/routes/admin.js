@@ -101,6 +101,80 @@ router.post('/login', [
 });
 
 // ========================================
+// DASHBOARD DATA
+// ========================================
+
+// Get dashboard statistics
+router.get('/dashboard', verifyAdminToken, async (req, res) => {
+  try {
+    // Get total services count
+    const servicesResult = await executeQuery('SELECT COUNT(*) as total FROM services WHERE is_active = true');
+    const totalServices = servicesResult[0]?.total || 0;
+
+    // Get total categories count
+    const categoriesResult = await executeQuery('SELECT COUNT(*) as total FROM service_categories WHERE is_active = true');
+    const totalCategories = categoriesResult[0]?.total || 0;
+
+    // Get total articles count
+    const articlesResult = await executeQuery('SELECT COUNT(*) as total FROM articles WHERE is_published = true');
+    const totalArticles = articlesResult[0]?.total || 0;
+
+    // Get total users count
+    const usersResult = await executeQuery('SELECT COUNT(*) as total FROM users WHERE status = "active"');
+    const totalUsers = usersResult[0]?.total || 0;
+
+    // Get total bookings count
+    const bookingsResult = await executeQuery('SELECT COUNT(*) as total FROM bookings');
+    const totalBookings = bookingsResult[0]?.total || 0;
+
+    // Get total contact submissions count
+    const contactsResult = await executeQuery('SELECT COUNT(*) as total FROM contact_submissions');
+    const totalContacts = contactsResult[0]?.total || 0;
+
+    // Get recent services (last 5)
+    const recentServices = await executeQuery(`
+      SELECT id, name, description, price, duration, created_at
+      FROM services 
+      WHERE is_active = true
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `);
+
+    // Get recent articles (last 5)
+    const recentArticles = await executeQuery(`
+      SELECT id, title, description, category, created_at
+      FROM articles 
+      WHERE is_published = true
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `);
+
+    res.json({
+      success: true,
+      data: {
+        stats: {
+          totalServices,
+          totalCategories,
+          totalArticles,
+          totalUsers,
+          totalBookings,
+          totalContacts
+        },
+        recentServices,
+        recentArticles
+      },
+      message: 'Dashboard data retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch dashboard data' 
+    });
+  }
+});
+
+// ========================================
 // ARTICLE MANAGEMENT SYSTEM
 // ========================================
 
