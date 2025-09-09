@@ -2,8 +2,9 @@ services:
   - type: web
     name: mr-robot-frontend
     env: static
-    buildCommand: cd website/fronted && npm install && npm run build
-    staticPublishPath: website/fronted/build
+    rootDir: website/fronted
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
     envVars:
       - key: NODE_ENV
         value: production
