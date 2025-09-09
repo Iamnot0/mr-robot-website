@@ -43,7 +43,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       queryParams.push(status);
     }
     
-    const whereClause = whereConditions.length > 0 $1 `WHERE ${whereConditions.join(' AND ')}` : '';
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
     
     // Get total count
     const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
