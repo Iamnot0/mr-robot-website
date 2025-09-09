@@ -11,7 +11,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://mrrobotcomputerrepair.com,https://fronted-ten-self.vercel.app
+        value: https://mrrobotcomputerservice.onrender.com,https://mrrobotcomputerrepair.com,https://fronted-ten-self.vercel.app
 
   - type: pserv
     name: mr-robot-database
