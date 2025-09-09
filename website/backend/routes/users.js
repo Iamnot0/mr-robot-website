@@ -2,6 +2,29 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { executeQuery } = require('../database/connection');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
+const jwt = require('jsonwebtoken');
+
+// Middleware to verify admin token (PostgreSQL compatible)
+const verifyAdminToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Access token required' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const users = await executeQuery('SELECT * FROM users WHERE id = $1 AND role = $2 AND status = $3', [decoded.id, 'admin', 'active']);
+    
+    if (users.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
+
+    req.user = users[0];
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+};
 
 const router = express.Router();
 
@@ -19,7 +42,7 @@ const validateUserUpdate = [
 // @route   GET /api/users
 // @desc    Get all users (admin only)
 // @access  Private/Admin
-router.get('/', verifyToken, requireAdmin, async (req, res) => {
+router.get('/', verifyAdminToken, async (req, res) => {
   try {
     const { page = 1, limit = 20, search = '', role = '', status = '' } = req.query;
     const offset = (page - 1) * limit;
