@@ -4,6 +4,9 @@ services:
     env: static
     buildCommand: npm run build
     staticPublishPath: website/fronted/build
+    rewrites:
+      - source: /*
+        destination: /index.html
     envVars:
       - key: NODE_ENV
         value: production
