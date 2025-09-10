@@ -420,21 +420,21 @@ router.put('/services/:id', verifyAdminToken, async (req, res) => {
     }
 
     // Check if service exists
-    const existingService = await executeQuery('SELECT id FROM services WHERE id = ?', [id]);
+    const existingService = await executeQuery('SELECT id FROM services WHERE id = $1', [id]);
     if (existingService.length === 0) {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
 
     // Check if category exists
-    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = ?', [category]);
+    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = $1', [category]);
     if (existingCategory.length === 0) {
       return res.status(400).json({ success: false, message: 'Category does not exist' });
     }
 
     await executeQuery(`
       UPDATE services 
-      SET name = ?, description = ?, price = ?, duration = ?, category = ?, icon = ?, features = ?, is_active = ?, sort_order = ?
-      WHERE id = ?
+      SET name = $1, description = $2, price = $3, duration = $4, category = $5, icon = $6, features = $7, is_active = $8, sort_order = $9
+      WHERE id = $10
     `, [name, description || null, price || null, duration || null, category, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0, id]);
 
     res.json({
@@ -453,12 +453,12 @@ router.delete('/services/:id', verifyAdminToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if service exists
-    const existingService = await executeQuery('SELECT name FROM services WHERE id = ?', [id]);
+    const existingService = await executeQuery('SELECT name FROM services WHERE id = $1', [id]);
     if (existingService.length === 0) {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
 
-    await executeQuery('DELETE FROM services WHERE id = ?', [id]);
+    await executeQuery('DELETE FROM services WHERE id = $1', [id]);
 
     res.json({
       success: true,
@@ -495,7 +495,7 @@ router.post('/categories', verifyAdminToken, async (req, res) => {
     }
 
     // Check if category with same name already exists
-    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = ?', [name]);
+    const existingCategory = await executeQuery('SELECT id FROM service_categories WHERE name = $1', [name]);
     if (existingCategory.length > 0) {
       return res.status(400).json({ success: false, message: 'Category with this name already exists' });
     }
@@ -512,13 +512,13 @@ router.post('/categories', verifyAdminToken, async (req, res) => {
 
     const result = await executeQuery(`
       INSERT INTO service_categories (name, description, icon, color, is_active, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
     `, [categoryData.name, categoryData.description, categoryData.icon, categoryData.color, categoryData.is_active, categoryData.sort_order]);
 
     res.json({
       success: true,
       message: `Category "${categoryData.name}" created successfully`,
-      data: { id: result.insertId }
+      data: { id: result[0].id }
     });
   } catch (error) {
 
@@ -537,13 +537,13 @@ router.put('/categories/:id', verifyAdminToken, async (req, res) => {
     }
 
     // Check if category exists
-    const existingCategory = await executeQuery('SELECT name FROM service_categories WHERE id = ?', [id]);
+    const existingCategory = await executeQuery('SELECT name FROM service_categories WHERE id = $1', [id]);
     if (existingCategory.length === 0) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
 
     // Check if new name conflicts with another category
-    const nameConflict = await executeQuery('SELECT id FROM service_categories WHERE name = ? AND id != ?', [name, id]);
+    const nameConflict = await executeQuery('SELECT id FROM service_categories WHERE name = $1 AND id != $2', [name, id]);
     if (nameConflict.length > 0) {
       return res.status(400).json({ success: false, message: 'Category with this name already exists' });
     }
@@ -560,8 +560,8 @@ router.put('/categories/:id', verifyAdminToken, async (req, res) => {
 
     await executeQuery(`
       UPDATE service_categories 
-      SET name = ?, description = ?, icon = ?, color = ?, is_active = ?, sort_order = ?
-      WHERE id = ?
+      SET name = $1, description = $2, icon = $3, color = $4, is_active = $5, sort_order = $6
+      WHERE id = $7
     `, [categoryData.name, categoryData.description, categoryData.icon, categoryData.color, categoryData.is_active, categoryData.sort_order, id]);
 
     res.json({
@@ -585,8 +585,8 @@ router.post('/categories/:id/move-services', verifyAdminToken, async (req, res) 
     }
 
     // Get source and target category names
-    const sourceCategory = await executeQuery('SELECT name FROM service_categories WHERE id = ?', [id]);
-    const targetCategory = await executeQuery('SELECT name FROM service_categories WHERE id = ?', [targetCategoryId]);
+    const sourceCategory = await executeQuery('SELECT name FROM service_categories WHERE id = $1', [id]);
+    const targetCategory = await executeQuery('SELECT name FROM service_categories WHERE id = $1', [targetCategoryId]);
 
     if (sourceCategory.length === 0 || targetCategory.length === 0) {
       return res.status(404).json({ success: false, message: 'Category not found' });
@@ -594,13 +594,13 @@ router.post('/categories/:id/move-services', verifyAdminToken, async (req, res) 
 
     // Move all services from source category to target category
     const result = await executeQuery(
-      'UPDATE services SET category = ? WHERE category = ?',
+      'UPDATE services SET category = $1 WHERE category = $2',
       [targetCategory[0].name, sourceCategory[0].name]
     );
 
     res.json({
       success: true,
-      message: `Moved ${result.affectedRows} service(s) from "${sourceCategory[0].name}" to "${targetCategory[0].name}"`
+      message: `Moved ${result.length} service(s) from "${sourceCategory[0].name}" to "${targetCategory[0].name}"`
     });
   } catch (error) {
 
@@ -614,7 +614,7 @@ router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
     const { id } = req.params;
 
     // Get category name first
-    const categoryResult = await executeQuery('SELECT name FROM service_categories WHERE id = ?', [id]);
+    const categoryResult = await executeQuery('SELECT name FROM service_categories WHERE id = $1', [id]);
     
     if (categoryResult.length === 0) {
       return res.status(404).json({ success: false, message: 'Category not found' });
@@ -623,7 +623,7 @@ router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
     const categoryName = categoryResult[0].name;
 
     // Check if category is used by any services
-    const services = await executeQuery('SELECT COUNT(*) as count FROM services WHERE category = ?', [categoryName]);
+    const services = await executeQuery('SELECT COUNT(*) as count FROM services WHERE category = $1', [categoryName]);
     
     if (services[0].count > 0) {
       return res.status(400).json({ 
@@ -633,7 +633,7 @@ router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    await executeQuery('DELETE FROM service_categories WHERE id = ?', [id]);
+    await executeQuery('DELETE FROM service_categories WHERE id = $1', [id]);
 
     res.json({
       success: true,
@@ -839,14 +839,14 @@ router.delete('/bookings/completed', verifyAdminToken, async (req, res) => {
 router.delete('/bookings/cancelled', verifyAdminToken, async (req, res) => {
   try {
     const result = await executeQuery(
-      'DELETE FROM bookings WHERE status = ?',
+      'DELETE FROM bookings WHERE status = $1',
       ['cancelled']
     );
     
     res.json({
       success: true,
-      message: `Successfully deleted ${result.affectedRows} cancelled bookings`,
-      deleted_count: result.affectedRows
+      message: `Successfully deleted ${result.length} cancelled bookings`,
+      deleted_count: result.length
     });
   } catch (error) {
     console.error('Delete cancelled bookings error:', error);
@@ -861,14 +861,14 @@ router.delete('/bookings/cancelled', verifyAdminToken, async (req, res) => {
 router.delete('/bookings/finished', verifyAdminToken, async (req, res) => {
   try {
     const result = await executeQuery(
-      'DELETE FROM bookings WHERE status IN (?, ?)',
+      'DELETE FROM bookings WHERE status IN ($1, $2)',
       ['completed', 'cancelled']
     );
     
     res.json({
       success: true,
-      message: `Successfully deleted ${result.affectedRows} finished bookings`,
-      deleted_count: result.affectedRows
+      message: `Successfully deleted ${result.length} finished bookings`,
+      deleted_count: result.length
     });
   } catch (error) {
     console.error('Delete finished bookings error:', error);
