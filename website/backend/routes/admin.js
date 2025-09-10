@@ -394,9 +394,9 @@ router.post('/services', verifyAdminToken, async (req, res) => {
     }
 
     const result = await executeQuery(`
-      INSERT INTO services (name, description, price, duration, category, icon, features, is_active, sort_order)
+      INSERT INTO services (name, description, price, duration, category_id, icon, features, is_active, sort_order)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id
-    `, [name, description || null, price || null, duration || null, category, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0]);
+    `, [name, description || null, price || null, duration || null, existingCategory[0].id, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0]);
 
     res.json({
       success: true,
@@ -433,9 +433,9 @@ router.put('/services/:id', verifyAdminToken, async (req, res) => {
 
     await executeQuery(`
       UPDATE services 
-      SET name = $1, description = $2, price = $3, duration = $4, category = $5, icon = $6, features = $7, is_active = $8, sort_order = $9
+      SET name = $1, description = $2, price = $3, duration = $4, category_id = $5, icon = $6, features = $7, is_active = $8, sort_order = $9
       WHERE id = $10
-    `, [name, description || null, price || null, duration || null, category, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0, id]);
+    `, [name, description || null, price || null, duration || null, existingCategory[0].id, icon || null, features ? JSON.stringify(features) : null, is_active !== undefined ? is_active : 1, sort_order || 0, id]);
 
     res.json({
       success: true,
@@ -625,8 +625,8 @@ router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
     const categoryName = categoryResult[0].name;
     console.log('Category name:', categoryName);
 
-    // Check if category is used by any services
-    const services = await executeQuery('SELECT COUNT(*) as count FROM services WHERE category = $1', [categoryName]);
+    // Check if category is used by any services (using category_id instead of category name)
+    const services = await executeQuery('SELECT COUNT(*) as count FROM services WHERE category_id = $1', [id]);
     console.log('Services using this category:', services);
     
     if (services[0].count > 0) {
