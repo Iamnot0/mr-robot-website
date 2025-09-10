@@ -612,18 +612,22 @@ router.post('/categories/:id/move-services', verifyAdminToken, async (req, res) 
 router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('Attempting to delete category with ID:', id);
 
     // Get category name first
     const categoryResult = await executeQuery('SELECT name FROM service_categories WHERE id = $1', [id]);
+    console.log('Category result:', categoryResult);
     
     if (categoryResult.length === 0) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
 
     const categoryName = categoryResult[0].name;
+    console.log('Category name:', categoryName);
 
     // Check if category is used by any services
     const services = await executeQuery('SELECT COUNT(*) as count FROM services WHERE category = $1', [categoryName]);
+    console.log('Services using this category:', services);
     
     if (services[0].count > 0) {
       return res.status(400).json({ 
@@ -633,15 +637,21 @@ router.delete('/categories/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    await executeQuery('DELETE FROM service_categories WHERE id = $1', [id]);
+    // Delete the category
+    const deleteResult = await executeQuery('DELETE FROM service_categories WHERE id = $1', [id]);
+    console.log('Delete result:', deleteResult);
 
     res.json({
       success: true,
       message: `Category "${categoryName}" deleted successfully`
     });
   } catch (error) {
-
-    res.status(500).json({ success: false, message: 'Failed to delete category' });
+    console.error('Delete category error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to delete category',
+      error: error.message 
+    });
   }
 });
 
