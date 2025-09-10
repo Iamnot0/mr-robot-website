@@ -24,10 +24,296 @@ const ContentEditor = ({ value, onChange, placeholder = "Write your content here
   const [imageUrl, setImageUrl] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Format text functions
+  // Enhanced format text functions with proper keyboard shortcut handling
   const formatText = (command, value = null) => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+      
+      // Use modern Selection API instead of deprecated execCommand
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        
+        switch (command) {
+          case 'bold':
+            toggleBold();
+            break;
+          case 'italic':
+            toggleItalic();
+            break;
+          case 'underline':
+            toggleUnderline();
+            break;
+          case 'insertUnorderedList':
+            toggleUnorderedList();
+            break;
+          case 'insertOrderedList':
+            toggleOrderedList();
+            break;
+          case 'justifyLeft':
+            setAlignment('left');
+            break;
+          case 'justifyCenter':
+            setAlignment('center');
+            break;
+          case 'justifyRight':
+            setAlignment('right');
+            break;
+          case 'createLink':
+            if (value) createLink(value);
+            break;
+          case 'insertHTML':
+            if (value) insertHTML(value);
+            break;
+          default:
+            // Fallback to execCommand for other commands
     document.execCommand(command, false, value);
-    editorRef.current.focus();
+        }
+      }
+    }
+  };
+
+  // Toggle bold formatting
+  const toggleBold = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+      
+      if (element.tagName === 'B' || element.tagName === 'STRONG') {
+        // Remove bold
+        const text = element.textContent;
+        const newText = document.createTextNode(text);
+        element.parentNode.replaceChild(newText, element);
+      } else {
+        // Add bold
+        const boldElement = document.createElement('strong');
+        try {
+          range.surroundContents(boldElement);
+        } catch (e) {
+          // If surroundContents fails, use extractContents
+          const contents = range.extractContents();
+          boldElement.appendChild(contents);
+          range.insertNode(boldElement);
+        }
+      }
+    }
+    handleContentChange();
+  };
+
+  // Toggle italic formatting
+  const toggleItalic = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+      
+      if (element.tagName === 'I' || element.tagName === 'EM') {
+        // Remove italic
+        const text = element.textContent;
+        const newText = document.createTextNode(text);
+        element.parentNode.replaceChild(newText, element);
+      } else {
+        // Add italic
+        const italicElement = document.createElement('em');
+        try {
+          range.surroundContents(italicElement);
+        } catch (e) {
+          // If surroundContents fails, use extractContents
+          const contents = range.extractContents();
+          italicElement.appendChild(contents);
+          range.insertNode(italicElement);
+        }
+      }
+    }
+    handleContentChange();
+  };
+
+  // Toggle underline formatting
+  const toggleUnderline = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+      
+      if (element.tagName === 'U') {
+        // Remove underline
+        const text = element.textContent;
+        const newText = document.createTextNode(text);
+        element.parentNode.replaceChild(newText, element);
+      } else {
+        // Add underline
+        const underlineElement = document.createElement('u');
+        try {
+          range.surroundContents(underlineElement);
+        } catch (e) {
+          // If surroundContents fails, use extractContents
+          const contents = range.extractContents();
+          underlineElement.appendChild(contents);
+          range.insertNode(underlineElement);
+        }
+      }
+    }
+    handleContentChange();
+  };
+
+  // Toggle unordered list
+  const toggleUnorderedList = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const listItem = container.closest('li');
+      const list = container.closest('ul');
+      
+      if (list) {
+        // Convert list items to paragraphs
+        const listItems = list.querySelectorAll('li');
+        listItems.forEach(li => {
+          const p = document.createElement('p');
+          p.innerHTML = li.innerHTML;
+          list.parentNode.insertBefore(p, list);
+        });
+        list.remove();
+      } else {
+        // Create unordered list
+        const ul = document.createElement('ul');
+        const li = document.createElement('li');
+        
+        if (range.collapsed) {
+          li.innerHTML = '&nbsp;';
+        } else {
+          const contents = range.extractContents();
+          li.appendChild(contents);
+        }
+        
+        ul.appendChild(li);
+        range.insertNode(ul);
+        
+        // Move cursor inside the list item
+        const newRange = document.createRange();
+        newRange.setStart(li, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    }
+    handleContentChange();
+  };
+
+  // Toggle ordered list
+  const toggleOrderedList = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const listItem = container.closest('li');
+      const list = container.closest('ol');
+      
+      if (list) {
+        // Convert list items to paragraphs
+        const listItems = list.querySelectorAll('li');
+        listItems.forEach(li => {
+          const p = document.createElement('p');
+          p.innerHTML = li.innerHTML;
+          list.parentNode.insertBefore(p, list);
+        });
+        list.remove();
+      } else {
+        // Create ordered list
+        const ol = document.createElement('ol');
+        const li = document.createElement('li');
+        
+        if (range.collapsed) {
+          li.innerHTML = '&nbsp;';
+        } else {
+          const contents = range.extractContents();
+          li.appendChild(contents);
+        }
+        
+        ol.appendChild(li);
+        range.insertNode(ol);
+        
+        // Move cursor inside the list item
+        const newRange = document.createRange();
+        newRange.setStart(li, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    }
+    handleContentChange();
+  };
+
+  // Set text alignment
+  const setAlignment = (alignment) => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      const blockElement = container.closest('p, div, h1, h2, h3, h4, h5, h6, li');
+      
+      if (blockElement) {
+        blockElement.style.textAlign = alignment;
+      } else {
+        // Create a div with alignment
+        const div = document.createElement('div');
+        div.style.textAlign = alignment;
+        
+        if (range.collapsed) {
+          div.innerHTML = '&nbsp;';
+        } else {
+          const contents = range.extractContents();
+          div.appendChild(contents);
+        }
+        
+        range.insertNode(div);
+      }
+    }
+    handleContentChange();
+  };
+
+  // Create link
+  const createLink = (url) => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0 && !selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      try {
+        range.surroundContents(link);
+      } catch (e) {
+        const contents = range.extractContents();
+        link.appendChild(contents);
+        range.insertNode(link);
+      }
+    }
+    handleContentChange();
+  };
+
+  // Insert HTML
+  const insertHTML = (html) => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      
+      const fragment = document.createDocumentFragment();
+      while (tempDiv.firstChild) {
+        fragment.appendChild(tempDiv.firstChild);
+      }
+      
+      range.deleteContents();
+      range.insertNode(fragment);
+    }
+    handleContentChange();
   };
 
   // Insert image function
@@ -82,6 +368,75 @@ const ContentEditor = ({ value, onChange, placeholder = "Write your content here
       const selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
+    }
+  };
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e) => {
+    // Prevent browser default shortcuts when Ctrl/Cmd is pressed
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key.toLowerCase()) {
+        case 'b':
+          e.preventDefault();
+          formatText('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          formatText('italic');
+          break;
+        case 'u':
+          e.preventDefault();
+          formatText('underline');
+          break;
+        case 'l':
+          e.preventDefault();
+          formatText('createLink', prompt('Enter URL:'));
+          break;
+        case 'z':
+          // Allow undo/redo
+          break;
+        case 'y':
+          // Allow redo
+          break;
+        case 's':
+          // Allow save
+          break;
+        default:
+          // Prevent other browser shortcuts
+          e.preventDefault();
+          break;
+      }
+    }
+    
+    // Handle Enter key in lists
+    if (e.key === 'Enter') {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        const listItem = container.closest('li');
+        
+        if (listItem) {
+          e.preventDefault();
+          
+          // Create new list item
+          const newLi = document.createElement('li');
+          newLi.innerHTML = '&nbsp;';
+          
+          if (listItem.nextSibling) {
+            listItem.parentNode.insertBefore(newLi, listItem.nextSibling);
+          } else {
+            listItem.parentNode.appendChild(newLi);
+          }
+          
+          // Move cursor to new list item
+          const newRange = document.createRange();
+          newRange.setStart(newLi, 0);
+          newRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+      }
     }
   };
 
@@ -263,6 +618,7 @@ const ContentEditor = ({ value, onChange, placeholder = "Write your content here
         ref={editorRef}
         contentEditable
         onInput={handleContentChange}
+        onKeyDown={handleKeyDown}
         className="min-h-[300px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent prose prose-sm max-w-none"
         style={{
           whiteSpace: 'pre-wrap',
@@ -271,12 +627,62 @@ const ContentEditor = ({ value, onChange, placeholder = "Write your content here
         data-placeholder={placeholder}
       />
       
-      {/* Placeholder styling */}
+      {/* Placeholder styling and editor enhancements */}
       <style jsx>{`
         [contenteditable]:empty:before {
           content: attr(data-placeholder);
           color: #9ca3af;
           pointer-events: none;
+        }
+        
+        [contenteditable] ul {
+          list-style-type: disc;
+          margin: 1rem 0;
+          padding-left: 2rem;
+        }
+        
+        [contenteditable] ol {
+          list-style-type: decimal;
+          margin: 1rem 0;
+          padding-left: 2rem;
+        }
+        
+        [contenteditable] li {
+          margin: 0.5rem 0;
+          line-height: 1.6;
+        }
+        
+        [contenteditable] p {
+          margin: 1rem 0;
+          line-height: 1.6;
+        }
+        
+        [contenteditable] strong, [contenteditable] b {
+          font-weight: bold;
+        }
+        
+        [contenteditable] em, [contenteditable] i {
+          font-style: italic;
+        }
+        
+        [contenteditable] u {
+          text-decoration: underline;
+        }
+        
+        [contenteditable] a {
+          color: #3b82f6;
+          text-decoration: underline;
+        }
+        
+        [contenteditable] a:hover {
+          color: #1d4ed8;
+        }
+        
+        [contenteditable] img {
+          max-width: 100%;
+          height: auto;
+          margin: 10px 0;
+          border-radius: 8px;
         }
       `}</style>
     </div>
