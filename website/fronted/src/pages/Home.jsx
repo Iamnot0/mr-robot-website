@@ -172,19 +172,15 @@ const Home = () => {
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Hardware Repair</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Troubleshooting</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Software Solutions</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Developing</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Cybersecurity</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Network Solutions</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Consulting</span>
                     </div>
                   </div>
                   <div className="mt-6 flex items-center text-mr-cerulean font-semibold group-hover:text-mr-cerulean-dark transition-colors">
@@ -217,19 +213,19 @@ const Home = () => {
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Computer Science</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Articles</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Linux</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Books</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">A+ Certification</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Podcast</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-mr-cerulean flex-shrink-0" />
-                      <span className="text-sm text-mr-charcoal/80 font-medium">Network+ & Security+</span>
+                      <span className="text-sm text-mr-charcoal/80 font-medium">Understanding</span>
                     </div>
                   </div>
                   <div className="mt-6 flex items-center text-mr-cerulean font-semibold group-hover:text-mr-cerulean-dark transition-colors">
