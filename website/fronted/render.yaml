@@ -7,22 +7,3 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-    routes:
-      - type: rewrite
-        source: /admin/*
-        destination: /index.html
-      - type: rewrite
-        source: /services/*
-        destination: /index.html
-      - type: rewrite
-        source: /knowledge/*
-        destination: /index.html
-      - type: rewrite
-        source: /contact
-        destination: /index.html
-      - type: rewrite
-        source: /userDashboard
-        destination: /index.html
-      - type: rewrite
-        source: /article/*
-        destination: /index.html
