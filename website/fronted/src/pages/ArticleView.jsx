@@ -198,7 +198,7 @@ const ArticleView = () => {
                       className="bg-mr-cerulean hover:bg-mr-cerulean-dark text-white px-6 py-3"
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      Read Full Article on Medium
+                      Read Article on Medium
                     </Button>
                   </div>
                 </div>
