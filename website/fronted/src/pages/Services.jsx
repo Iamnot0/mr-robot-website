@@ -181,15 +181,11 @@ const Services = () => {
               {serviceCategories.map((category, categoryIndex) => {
                 const CategoryIcon = getCategoryIcon(category.name);
                 return (
-                  <Card 
-                    key={categoryIndex} 
-                    className="border-2 border-mr-cerulean bg-mr-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                    onClick={() => {
-                      const safeId = generateSafeId(category.name);
-                      // Navigate to the category page with proper URL
-                      window.location.href = `/services/${safeId}`;
-                    }}
-                  >
+                  <Link to={`/services/${generateSafeId(category.name)}`}>
+                    <Card 
+                      key={categoryIndex} 
+                      className="border-2 border-mr-cerulean bg-mr-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                    >
                     <CardHeader className="text-center pb-4">
                       <div className="w-16 h-16 bg-mr-cerulean rounded-full flex items-center justify-center mx-auto mb-4">
                         <CategoryIcon className="h-8 w-8 text-white" />
@@ -205,8 +201,9 @@ const Services = () => {
                       <Button className="bg-mr-cerulean text-mr-white hover:bg-mr-cerulean px-8 py-2">
                         View Services
                       </Button>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                  </Link>
                 );
               })}
             </div>
