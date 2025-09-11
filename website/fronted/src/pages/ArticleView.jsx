@@ -165,34 +165,6 @@ const ArticleView = () => {
             </div>
           </div>
 
-          {/* External Link Section */}
-          {article.external_link && (
-            <Card className="mb-8 border-2 border-mr-cerulean bg-gradient-to-r from-mr-cerulean/5 to-mr-cerulean/10">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-mr-cerulean rounded-lg">
-                      <ExternalLink className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-mr-charcoal">Read the Full Article</h3>
-                      <p className="text-sm text-mr-charcoal/70">
-                        This is a summary. Read the complete article on Medium for more details.
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={() => window.open(article.external_link, '_blank')}
-                    className="bg-mr-cerulean hover:bg-mr-cerulean-dark text-white px-6 py-2"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Read on Medium
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Article Body */}
           <Card className="mb-8">
             <CardContent className="p-8">
@@ -214,6 +186,21 @@ const ArticleView = () => {
                       Read Full Article
                     </Button>
                   )}
+                </div>
+              )}
+              
+              {/* Medium Link at the end of article content */}
+              {article.external_link && article.content && (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="flex items-center justify-center">
+                    <Button 
+                      onClick={() => window.open(article.external_link, '_blank')}
+                      className="bg-mr-cerulean hover:bg-mr-cerulean-dark text-white px-6 py-3"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Read Full Article on Medium
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
