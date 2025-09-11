@@ -41,14 +41,23 @@ const Knowledge = () => {
 
   // Thumbnail mapping for articles
   const getThumbnailUrl = (article) => {
-    // If article has a valid thumbnail_url, use it
-    if (article.thumbnail_url && article.thumbnail_url !== 'null' && article.thumbnail_url !== '') {
-      return article.thumbnail_url.startsWith('http') ? 
-        article.thumbnail_url : 
-        `/article-thumbnails/${article.thumbnail_url}`;
+    // If article has a valid thumbnail_url from database, use it first
+    if (article.thumbnail_url && 
+        article.thumbnail_url !== 'null' && 
+        article.thumbnail_url !== '' && 
+        article.thumbnail_url !== null) {
+      
+      // Handle different URL formats
+      if (article.thumbnail_url.startsWith('http')) {
+        return article.thumbnail_url;
+      } else if (article.thumbnail_url.startsWith('/article-thumbnails/')) {
+        return article.thumbnail_url;
+      } else {
+        return `/article-thumbnails/${article.thumbnail_url}`;
+      }
     }
     
-    // Fallback mapping based on article title/slug
+    // Fallback mapping based on article title/slug (only when no database thumbnail)
     const title = article.title.toLowerCase();
     const slug = article.slug || '';
     
