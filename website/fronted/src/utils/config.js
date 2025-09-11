@@ -1,9 +1,8 @@
 // Configuration utility for API endpoints and other settings
 
-// Use local backend for development, production backend for deployed version
-export const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:3001' 
-  : 'https://mr-robot-backend.onrender.com';
+// Use production backend for both development and production
+// This ensures thumbnails and database work consistently
+export const API_BASE_URL = 'https://mr-robot-backend.onrender.com';
 
 export const API_ENDPOINTS = {
   // Health check
