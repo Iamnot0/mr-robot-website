@@ -8,7 +8,9 @@ import {
   Facebook,
   Twitter,
   Linkedin,
-  Instagram
+  Instagram,
+  MessageCircle,
+  Send
 } from 'lucide-react';
 
 const Footer = () => {
@@ -150,6 +152,24 @@ const Footer = () => {
                 aria-label="Connect on LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://invite.viber.com/?g2=AQAvlCMVg%2BOHw1VFcWR9MWgMKO2j2xa8s0NKd2ml6T8g2yUGzdOCQ1HkRlq%2FBqcS" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-mr-blue-light hover:text-mr-cerulean transition-colors"
+                aria-label="Join our Viber Channel"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://t.me/MrRobot_ComputerService" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-mr-blue-light hover:text-mr-cerulean transition-colors"
+                aria-label="Join our Telegram Channel"
+              >
+                <Send className="h-5 w-5" />
               </a>
             </div>
           </div>
