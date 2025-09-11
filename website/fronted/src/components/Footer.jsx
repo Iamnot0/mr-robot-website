@@ -9,7 +9,6 @@ import {
   Twitter,
   Linkedin,
   Instagram,
-  MessageCircle,
   Send
 } from 'lucide-react';
 
@@ -160,7 +159,14 @@ const Footer = () => {
                 className="text-mr-blue-light hover:text-mr-cerulean transition-colors"
                 aria-label="Join our Viber Channel"
               >
-                <MessageCircle className="h-5 w-5" />
+                <svg 
+                  className="h-5 w-5" 
+                  viewBox="0 0 24 24" 
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M11.398.005C5.424.005.005 5.424.005 11.398c0 2.096.675 4.03 1.816 5.6L.005 24l7.002-1.821c1.57 1.141 3.504 1.816 5.6 1.816 5.974 0 10.393-4.419 10.393-10.393S17.372.005 11.398.005zm5.99 14.429c-.199.199-.465.298-.73.298-.266 0-.532-.099-.73-.298l-1.396-1.396-1.396 1.396c-.199.199-.465.298-.73.298-.266 0-.532-.099-.73-.298-.398-.398-.398-1.062 0-1.46l1.396-1.396-1.396-1.396c-.398-.398-.398-1.062 0-1.46.398-.398 1.062-.398 1.46 0l1.396 1.396 1.396-1.396c.398-.398 1.062-.398 1.46 0 .398.398.398 1.062 0 1.46l-1.396 1.396 1.396 1.396c.398.398.398 1.062 0 1.46z"/>
+                </svg>
               </a>
               <a 
                 href="https://t.me/MrRobot_ComputerService" 
