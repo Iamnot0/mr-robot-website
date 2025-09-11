@@ -39,6 +39,34 @@ const Knowledge = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [error, setError] = useState(null);
 
+  // Thumbnail mapping for articles
+  const getThumbnailUrl = (article) => {
+    // If article has a valid thumbnail_url, use it
+    if (article.thumbnail_url && article.thumbnail_url !== 'null' && article.thumbnail_url !== '') {
+      return article.thumbnail_url.startsWith('http') ? 
+        article.thumbnail_url : 
+        `/article-thumbnails/${article.thumbnail_url}`;
+    }
+    
+    // Fallback mapping based on article title/slug
+    const title = article.title.toLowerCase();
+    const slug = article.slug || '';
+    
+    if (title.includes('cyber') || title.includes('security')) return '/article-thumbnails/53-cyber-security.webp';
+    if (title.includes('malware')) return '/article-thumbnails/malware.webp';
+    if (title.includes('os') || title.includes('install')) return '/article-thumbnails/os-installations.webp';
+    if (title.includes('retrieval') || title.includes('location')) return '/article-thumbnails/515-retrieval-and-location-of-web-pages.webp';
+    if (title.includes('internet') || title.includes('world wide web')) return '/article-thumbnails/51-514-the-internet-and-world-wide-web.webp';
+    if (title.includes('currency')) return '/article-thumbnails/52-currency.webp';
+    if (title.includes('blockchain')) return '/article-thumbnails/522-blockchain.webp';
+    if (title.includes('display') || title.includes('screen')) return '/article-thumbnails/display-screens.webp';
+    if (title.includes('symmetric') || title.includes('asymmetric') || title.includes('encryption')) return '/article-thumbnails/23-symmetric-and-asymmetric-encryption.webp';
+    if (title.includes('optical') || title.includes('mouse')) return '/article-thumbnails/328-optical-mouse.webp';
+    
+    // Default fallback
+    return '/logo2.png';
+  };
+
   // Format date function
   const formatDate = (dateString) => {
     try {
@@ -410,11 +438,7 @@ const Knowledge = () => {
                             <>
                               <div className="relative h-48 bg-mr-blue-light overflow-hidden">
                                 <img 
-                                  src={article.thumbnail_url ? 
-                                    (article.thumbnail_url.startsWith('http') ? 
-                                      article.thumbnail_url : 
-                                      `${API_BASE_URL}${article.thumbnail_url}`) : 
-                                    '/logo2.png'} 
+                                  src={getThumbnailUrl(article)} 
                                   alt={article.title}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -456,11 +480,7 @@ const Knowledge = () => {
                             <>
                               <div className="w-48 h-32 bg-mr-blue-light flex-shrink-0 overflow-hidden">
                                 <img 
-                                  src={article.thumbnail_url ? 
-                                    (article.thumbnail_url.startsWith('http') ? 
-                                      article.thumbnail_url : 
-                                      `${API_BASE_URL}${article.thumbnail_url}`) : 
-                                    '/logo2.png'} 
+                                  src={getThumbnailUrl(article)} 
                                   alt={article.title}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
