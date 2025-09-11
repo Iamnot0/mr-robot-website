@@ -205,7 +205,7 @@ const Knowledge = () => {
         
         // Use knowledge categories from context
         const dynamicCategories = knowledgeCategories.map(category => ({
-          id: category.id,
+          id: category.name, // Use category name as ID for direct matching
           name: category.name,
           icon: BookOpen, // Default icon for knowledge categories
           count: data.data.articles.filter(a => a.category === category.name).length
@@ -239,17 +239,8 @@ const Knowledge = () => {
       // Old format with categories array
       matchesCategory = article.categories.some(cat => cat.toLowerCase().includes(selectedCategory));
     } else if (article.category) {
-      // New format with single category string
-      const categoryMap = {
-        'computer-science': 'Computer Science',
-        'linux': 'Linux',
-        'a-plus': 'A+',
-        'network-plus': 'Network+',
-        'security-plus': 'Security+',
-        'security': 'Security'
-      };
-      const expectedCategory = categoryMap[selectedCategory];
-      matchesCategory = article.category === expectedCategory;
+      // New format with single category string - match by category name directly
+      matchesCategory = article.category === selectedCategory;
     }
     
     return matchesSearch && matchesCategory;

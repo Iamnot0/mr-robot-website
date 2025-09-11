@@ -36,6 +36,8 @@ const ArticleView = () => {
         
         if (data.success && data.data) {
           setArticle(data.data);
+          // Scroll to top when article loads
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           throw new Error('Failed to load article');
         }
