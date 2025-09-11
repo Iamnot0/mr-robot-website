@@ -95,15 +95,12 @@ const Navbar = () => {
                     )}
                     {item.name === 'Knowledge' && (
                       <>
-                        {knowledgeCategories.map((category, index) => (
-                          <Link 
-                            key={index}
-                            to={category.url}
-                            className="block px-4 py-2 text-sm text-mr-charcoal hover:bg-mr-blue-light hover:text-mr-cerulean transition-colors"
-                          >
-                            {category.name}
-                          </Link>
-                        ))}
+                        <Link to="/knowledge?category=Computer%20Science" className="block px-4 py-2 text-sm text-mr-charcoal hover:bg-mr-blue-light hover:text-mr-cerulean transition-colors">
+                          Computer Science
+                        </Link>
+                        <Link to="/knowledge?category=A%2B" className="block px-4 py-2 text-sm text-mr-charcoal hover:bg-mr-blue-light hover:text-mr-cerulean transition-colors">
+                          A+
+                        </Link>
                         <Link to="/knowledge" className="block px-4 py-2 text-sm text-mr-cerulean font-semibold hover:bg-mr-blue-light transition-colors border-t border-mr-blue-light mt-2 pt-2">
                           All Articles →
                         </Link>
@@ -228,28 +225,30 @@ const Navbar = () => {
               </div>
 
               {/* Mobile Knowledge Categories */}
-              {knowledgeCategories.length > 0 && (
-                <div className="pt-4 border-t border-mr-charcoal-light">
-                  <div className="text-sm font-semibold text-mr-blue-light mb-3 px-4">KNOWLEDGE</div>
-                  {knowledgeCategories.map((category, index) => (
-                    <Link
-                      key={index}
-                      to={category.url}
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center space-x-3 px-4 py-2 text-mr-white rounded-lg transition-all duration-200"
-                    >
-                      <span className="font-medium text-sm">{category.name}</span>
-                    </Link>
-                  ))}
-                  <Link
-                    to="/knowledge"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-2 text-mr-cerulean rounded-lg transition-all duration-200"
-                  >
-                    <span className="font-medium text-sm">All Articles →</span>
-                  </Link>
-                </div>
-              )}
+              <div className="pt-4 border-t border-mr-charcoal-light">
+                <div className="text-sm font-semibold text-mr-blue-light mb-3 px-4">KNOWLEDGE</div>
+                <Link
+                  to="/knowledge?category=Computer%20Science"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-2 text-mr-white rounded-lg transition-all duration-200"
+                >
+                  <span className="font-medium text-sm">Computer Science</span>
+                </Link>
+                <Link
+                  to="/knowledge?category=A%2B"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-2 text-mr-white rounded-lg transition-all duration-200"
+                >
+                  <span className="font-medium text-sm">A+</span>
+                </Link>
+                <Link
+                  to="/knowledge"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-2 text-mr-cerulean rounded-lg transition-all duration-200"
+                >
+                  <span className="font-medium text-sm">All Articles →</span>
+                </Link>
+              </div>
 
               {/* Mobile Auth */}
               {!user && (
