@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './components/AuthContext';
 import { CategoryProvider } from './contexts/CategoryContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -60,9 +60,9 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <CategoryProvider>
-            <HashRouter>
+            <BrowserRouter>
               <AppContent />
-            </HashRouter>
+            </BrowserRouter>
           </CategoryProvider>
         </AuthProvider>
       </ThemeProvider>
