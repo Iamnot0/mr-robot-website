@@ -193,18 +193,14 @@ const Knowledge = () => {
       if (data.success && data.data && data.data.articles) {
         setArticles(data.data.articles);
         
-        // Use knowledge categories from context
-        console.log('Knowledge categories from context:', knowledgeCategories);
-        console.log('Articles data:', data.data.articles.slice(0, 3).map(a => ({ title: a.title, category: a.category })));
-        
-        const dynamicCategories = knowledgeCategories.map(category => ({
-          id: category.name, // Use category name as ID for direct matching
-          name: category.name,
-          icon: BookOpen, // Default icon for knowledge categories
-          count: data.data.articles.filter(a => a.category === category.name).length
+        // Create categories directly from articles instead of relying on context
+        const uniqueCategories = [...new Set(data.data.articles.map(article => article.category))];
+        const dynamicCategories = uniqueCategories.map(categoryName => ({
+          id: categoryName,
+          name: categoryName,
+          icon: BookOpen,
+          count: data.data.articles.filter(a => a.category === categoryName).length
         }));
-        
-        console.log('Dynamic categories created:', dynamicCategories);
         
         
         setCategories([
@@ -316,12 +312,10 @@ const Knowledge = () => {
                 {/* Categories */}
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-mr-charcoal">Categories</h3>
-                  {console.log('Rendering categories:', categories)}
                   {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => {
-                        console.log('Category button clicked:', category.id, category.name);
                         setSelectedCategory(category.id);
                         // Update URL parameter - encode category name for URL
                         if (category.id === 'all') {
@@ -329,7 +323,6 @@ const Knowledge = () => {
                         } else {
                           // Use the category name directly, but encode spaces and special characters
                           const urlCategory = encodeURIComponent(category.name);
-                          console.log('Setting URL category:', urlCategory);
                           setSearchParams({ category: urlCategory });
                         }
                       }}
