@@ -202,6 +202,10 @@ const Knowledge = () => {
           count: data.data.articles.filter(a => a.category === categoryName).length
         }));
         
+        // Debug: Log what categories are being created
+        console.log('Unique categories from articles:', uniqueCategories);
+        console.log('Dynamic categories created:', dynamicCategories);
+        
         
         setCategories([
           { id: 'all', name: 'All Articles', icon: BookOpen, count: data.data.articles.length },
@@ -312,10 +316,12 @@ const Knowledge = () => {
                 {/* Categories */}
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-mr-charcoal">Categories</h3>
+                  {console.log('Rendering categories:', categories.length, categories.map(c => c.name))}
                   {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => {
+                        console.log('Button clicked for category:', category.id, category.name);
                         setSelectedCategory(category.id);
                         // Update URL parameter - encode category name for URL
                         if (category.id === 'all') {
