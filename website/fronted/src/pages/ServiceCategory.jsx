@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS } from '../utils/config';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ArrowLeft } from 'lucide-react';
+import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../components/AuthContext';
 
 const ServiceCategory = () => {
   const { categoryId } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState('');
@@ -26,6 +31,26 @@ const ServiceCategory = () => {
   useEffect(() => {
     fetchServices();
   }, [categoryId]);
+
+  const handleBookService = (service) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to book a service",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
+
+    // Navigate to contact page with pre-filled service
+    navigate('/contact', { 
+      state: { 
+        selectedService: service,
+        prefillBooking: true 
+      } 
+    });
+  };
 
   const fetchServices = async () => {
     try {
@@ -145,7 +170,10 @@ const ServiceCategory = () => {
                     {service.description}
                   </CardDescription>
                   <div className="flex justify-end">
-                    <Button className="bg-mr-cerulean text-mr-white hover:bg-mr-cerulean px-8 py-2">
+                    <Button 
+                      onClick={() => handleBookService(service)}
+                      className="bg-mr-cerulean text-mr-white hover:bg-mr-cerulean px-8 py-2"
+                    >
                       Book Service
                     </Button>
                   </div>

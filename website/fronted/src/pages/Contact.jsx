@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { API_ENDPOINTS } from '../utils/config';
 import { Input } from '../ui/input';
@@ -20,6 +21,7 @@ import {
 
 const Contact = () => {
   const { user } = useAuth();
+  const location = useLocation();
   
   // SEO and SEM Optimization
   useEffect(() => {
@@ -34,6 +36,23 @@ const Contact = () => {
       );
     }
   }, []);
+
+  // Handle pre-filled booking data from service cards
+  useEffect(() => {
+    if (location.state?.prefillBooking && location.state?.selectedService) {
+      const service = location.state.selectedService;
+      setActiveTab('booking');
+      setBookingForm(prev => ({
+        ...prev,
+        service_id: service.id,
+        device_type: 'Desktop', // Default value
+        issue_description: `I would like to book: ${service.name}`,
+        customer_name: user?.name || '',
+        customer_email: user?.email || '',
+        customer_phone: user?.phone || ''
+      }));
+    }
+  }, [location.state, user]);
   const [activeTab, setActiveTab] = useState('contact');
   const [contactForm, setContactForm] = useState({
     name: '',
