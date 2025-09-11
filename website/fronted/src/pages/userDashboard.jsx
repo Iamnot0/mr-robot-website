@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import { API_BASE_URL } from '../utils/config';
 import { Button } from '../ui/button';
@@ -26,6 +27,7 @@ import {
 } from 'lucide-react';
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
   const { user, updateProfile, logout } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
@@ -152,7 +154,7 @@ const UserDashboard = () => {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Access Denied</h1>
           <p className="text-muted-foreground mb-6">Please log in to access your dashboard.</p>
-          <Button onClick={() => window.location.href = '/login'} className="bg-mr-cerulean hover:bg-mr-cerulean">
+          <Button onClick={() => navigate('/login')} className="bg-mr-cerulean hover:bg-mr-cerulean">
             Go to Login
           </Button>
         </div>

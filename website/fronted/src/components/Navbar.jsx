@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { Button } from '../ui/button';
@@ -13,6 +13,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { serviceCategories, knowledgeCategories } = useCategories();
   const location = useLocation();
+  const navigate = useNavigate();
 
 
     const navigation = [
@@ -158,7 +159,7 @@ const Navbar = () => {
                     <div className="text-xs text-mr-charcoal/70">{user.email}</div>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={() => window.location.href = '/userDashboard'} 
+                    onClick={() => navigate('/userDashboard')} 
                     className="text-mr-charcoal cursor-pointer"
                   >
                     <User className="mr-2 h-4 w-4" />
