@@ -39,7 +39,7 @@ const AdminLogin = () => {
         
         toast({
           title: "Welcome!",
-          description: "Admin login successful",
+          description: "Admin login successful - Redirecting to dashboard",
         });
         
         navigate('/admin/dashboard');
