@@ -51,9 +51,11 @@ const Knowledge = () => {
       if (article.thumbnail_url.startsWith('http')) {
         return article.thumbnail_url;
       } else if (article.thumbnail_url.startsWith('/article-thumbnails/')) {
-        return article.thumbnail_url;
+        // For uploaded files, use backend URL
+        return `${API_BASE_URL}${article.thumbnail_url}`;
       } else {
-        return `/article-thumbnails/${article.thumbnail_url}`;
+        // For filename-only, construct full path
+        return `${API_BASE_URL}/article-thumbnails/${article.thumbnail_url}`;
       }
     }
     
