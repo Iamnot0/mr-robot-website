@@ -67,12 +67,13 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-1 flex-1 justify-end pr-4">
             {navigation.map((item) => (
               <div key={item.name} className="relative group">
-                <button
-                  className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-1 text-mr-white"
+                <Link
+                  to={item.href}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-1 text-mr-white hover:text-mr-blue-light"
                 >
                   <span>{item.name}</span>
                   <ChevronDown className="w-3 h-3 transition-transform duration-200" />
-                </button>
+                </Link>
                 
                 {/* Dropdown Menu */}
                 <div className={`absolute top-full left-0 mt-1 bg-mr-white border-2 border-mr-blue-light rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50 ${
