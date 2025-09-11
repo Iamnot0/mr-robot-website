@@ -140,29 +140,19 @@ const Knowledge = () => {
     const articleParam = searchParams.get('article');
     
     if (categoryParam) {
-      // Map URL parameters to category IDs
-      const categoryMap = {
-        'computer-science': 'computer-science',
-        'linux': 'linux',
-        'a-plus': 'a-plus',
-        'network-plus': 'network-plus',
-        'security-plus': 'security-plus',
-        'security': 'security'
-      };
-      
-      if (categoryMap[categoryParam]) {
-        setSelectedCategory(categoryMap[categoryParam]);
-        // Smooth scroll to content after category change
-        setTimeout(() => {
-          const contentElement = document.querySelector('.lg\\:w-3\\/4');
-          if (contentElement) {
-            contentElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-          }
-        }, 100);
-      }
+      // Decode the category parameter to get the actual category name
+      const decodedCategory = decodeURIComponent(categoryParam);
+      setSelectedCategory(decodedCategory);
+      // Smooth scroll to content after category change
+      setTimeout(() => {
+        const contentElement = document.querySelector('.lg\\:w-3\\/4');
+        if (contentElement) {
+          contentElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
     } else {
       // If no category parameter, show all articles
       setSelectedCategory('all');
@@ -211,8 +201,6 @@ const Knowledge = () => {
           count: data.data.articles.filter(a => a.category === category.name).length
         }));
         
-        console.log('Dynamic categories:', dynamicCategories);
-        console.log('Articles sample:', data.data.articles.slice(0, 3).map(a => ({ title: a.title, category: a.category })));
         
         setCategories([
           { id: 'all', name: 'All Articles', icon: BookOpen, count: data.data.articles.length },
@@ -244,9 +232,6 @@ const Knowledge = () => {
     } else if (article.category) {
       // New format with single category string - match by category name directly
       matchesCategory = article.category === selectedCategory;
-      if (selectedCategory !== 'all') {
-        console.log(`Filtering: selectedCategory="${selectedCategory}", article.category="${article.category}", matches=${matchesCategory}`);
-      }
     }
     
     return matchesSearch && matchesCategory;
@@ -330,13 +315,14 @@ const Knowledge = () => {
                     <button
                       key={category.id}
                       onClick={() => {
-                        console.log('Category clicked:', category.id, category.name);
                         setSelectedCategory(category.id);
-                        // Update URL parameter
+                        // Update URL parameter - encode category name for URL
                         if (category.id === 'all') {
                           setSearchParams({});
                         } else {
-                          setSearchParams({ category: category.id });
+                          // Use the category name directly, but encode spaces and special characters
+                          const urlCategory = encodeURIComponent(category.name);
+                          setSearchParams({ category: urlCategory });
                         }
                       }}
                       className={`flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
