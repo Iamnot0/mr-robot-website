@@ -159,14 +159,7 @@ const Footer = () => {
                 className="text-mr-blue-light hover:text-mr-cerulean transition-colors"
                 aria-label="Join our Viber Channel"
               >
-                <svg 
-                  className="h-5 w-5" 
-                  viewBox="0 0 24 24" 
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                </svg>
+                <span className="text-lg">💬</span>
               </a>
               <a 
                 href="https://t.me/MrRobot_ComputerService" 
