@@ -1,0 +1,57 @@
+# Sensitive Configuration Files
+config.env
+config.production.env
+*.LOCAL_BACKUP
+database_schema.sql
+create_missing_tables.sql
+grant_permissions.sql
+setup_database.js
+website/fronted/src/config/chatConfig.js
+
+# Sensitive Documentation
+MrRobot_README.txt
+REAL_SYSTEM_README.md
+sql_cmd.txt
+
+# Database Files
+*.sql
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+server.log
+
+# Build directories
+build/
+dist/
+.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.vercel

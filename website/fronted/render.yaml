@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mrrobotcomputerservice
+    runtime: node
+    rootDir: website/fronted
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build -l 10000
+    plan: free
+    region: oregon
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://mr-robot-backend.onrender.com
+    healthCheckPath: /

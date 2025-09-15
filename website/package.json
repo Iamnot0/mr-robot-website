@@ -1,0 +1,19 @@
+{
+  "name": "mr-robot-website",
+  "version": "1.0.0",
+  "description": "MR-ROBOT Computer Service Website",
+  "private": true,
+  "workspaces": [
+    "website/fronted",
+    "website/backend"
+  ],
+  "scripts": {
+    "install": "echo 'Root install - no action needed'",
+    "build": "echo 'Use individual service build commands'",
+    "start": "echo 'Use individual service start commands'"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
