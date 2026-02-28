@@ -27,6 +27,9 @@
      --card: #ffffff;
      --card-foreground: var(--oxford-blue);
    
+     --popover: #ffffff;
+     --popover-foreground: var(--oxford-blue);
+   
      --primary: var(--oxford-blue);
      --primary-foreground: #ffffff;
    
@@ -34,6 +37,7 @@
      --secondary-foreground: var(--oxford-blue);
    
      --muted: #f5f5f5;
+     --muted-light: #fafaf9;
      --muted-foreground: #4b5563;
    
      --accent: var(--oxford-blue);
@@ -68,13 +72,17 @@
    
    /* -----------------------------------------
       DARK THEME — Oxford Blue canvas with Tan text
+      Visual hierarchy: darkest bg → medium hero → lighter cards
       ----------------------------------------- */
 .dark {
-     --background: var(--oxford-blue);
+     --background: #000c1d;
      --foreground: var(--tan);
    
-     --card: var(--oxford-blue-dark);
+     --card: #0d2a50;
      --card-foreground: var(--tan);
+   
+     --popover: #0d2a50;
+     --popover-foreground: var(--tan);
    
      --primary: var(--tan);
      --primary-foreground: var(--oxford-blue);
@@ -82,7 +90,8 @@
      --secondary: var(--tan);
      --secondary-foreground: var(--oxford-blue);
    
-     --muted: var(--oxford-blue-dark);
+     --muted: #001b36;
+     --muted-light: #00152b;
      --muted-foreground: #c4b08f;
    
      --accent: var(--tan);
@@ -91,27 +100,27 @@
      --destructive: #fca5a5;
      --destructive-foreground: #5b0b0b;
    
-     --border: #38557a;
-     --input: var(--oxford-blue-dark);
+     --border: #1a4a6e;
+     --input: #001b36;
      --ring: var(--tan);
    
-     --navbar-bg: var(--oxford-blue);
+     --navbar-bg: #001b36;
      --navbar-text: var(--tan);
-     --navbar-hover: var(--tan);
+     --navbar-hover: var(--tan-light);
    
      --hero-bg: var(--oxford-blue);
      --hero-text: var(--tan);
      --hero-subtext: var(--tan);
    
-     --services-bg: var(--oxford-blue);
-     --services-card-bg: var(--oxford-blue-dark);
+     --services-bg: #000c1d;
+     --services-card-bg: #0d2a50;
    
-     --testimonials-bg: var(--oxford-blue);
-     --testimonials-card-bg: var(--oxford-blue-dark);
+     --testimonials-bg: #001b36;
+     --testimonials-card-bg: #0d2a50;
    
-     --footer-bg: var(--tan);
-     --footer-text: var(--oxford-blue);
-     --footer-hover: var(--oxford-blue);
+     --footer-bg: #001b36;
+     --footer-text: var(--tan);
+     --footer-hover: var(--tan-light);
    }
    
    /* -----------------------------------------
@@ -157,22 +166,9 @@
    .navbar-nav .nav-link:hover { color: var(--navbar-hover); }
    .navbar-nav .nav-link.active { color: var(--primary); font-weight: 600; }
    
-  /* Navigation dropdown items - Light theme: Tan background with Oxford Blue text */
-  .navbar .bg-card { 
-    background-color: var(--tan); 
-    border-color: var(--oxford-blue);
-  }
-  .navbar .bg-card a { 
-    color: var(--oxford-blue); 
-  }
-  .navbar .bg-card a:hover { 
-    color: var(--oxford-blue); 
-    background-color: var(--tan-light); 
-  }
-  
-  /* More specific targeting for dropdown menu - Light theme */
+  /* Navigation dropdown — matches hero-bg exactly */
   nav .bg-card {
-    background-color: var(--tan);
+    background-color: var(--hero-bg);
     border-color: var(--oxford-blue);
   }
   nav .bg-card a {
@@ -183,30 +179,17 @@
     background-color: var(--tan-light);
   }
 
-  /* Dark theme dropdown menu - Oxford Blue background with Tan text */
-  .dark .navbar .bg-card { 
-    background-color: var(--oxford-blue); 
-    border-color: var(--tan);
-  }
-  .dark .navbar .bg-card a { 
-    color: var(--tan); 
-  }
-  .dark .navbar .bg-card a:hover { 
-    color: var(--tan); 
-    background-color: var(--oxford-blue-dark); 
-  }
-  
-  /* Dark theme specific targeting for dropdown menu */
+  /* Dark theme dropdown — elevated card surface */
   .dark nav .bg-card {
-    background-color: var(--oxford-blue);
+    background-color: #0d2a50;
     border-color: var(--tan);
   }
   .dark nav .bg-card a {
     color: var(--tan);
   }
   .dark nav .bg-card a:hover {
-    color: var(--tan);
-    background-color: var(--oxford-blue-dark);
+    color: var(--tan-light);
+    background-color: #1a3a5c;
   }
    
    .navbar-toggler { border-color: var(--border); color: var(--navbar-text); }

@@ -1,27 +1,28 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { FileText, Scale, Shield, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
+import { FileText, Shield, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
 const Terms = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-primary py-16">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex justify-center mb-6">
-            <Scale className="h-16 w-16 text-primary-foreground" />
+      <section className="relative bg-hero-bg text-hero-text py-20">
+        <div className="relative container mx-auto px-6">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <span className="block text-white">Terms of</span>
+              <span className="block text-hero-text">Service</span>
+            </h1>
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+              Please read these terms carefully before using our computer repair services.
+            </p>
+            <p className="text-sm text-hero-text/60">
+              Last updated: {new Date().toLocaleDateString()}
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-primary-foreground mb-4">
-            Terms of Service
-          </h1>
-          <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-            Please read these terms carefully before using our computer repair services.
-          </p>
-          <p className="text-sm text-primary-foreground/60 mt-4">
-            Last updated: {new Date().toLocaleDateString()}
-          </p>
         </div>
-      </div>
+      </section>
+
+      <div className="h-px bg-white/20"></div>
 
       {/* Content */}
       <div className="container mx-auto px-6 py-16">

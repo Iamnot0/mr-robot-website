@@ -1,24 +1,25 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Award, Shield, Wrench, Clock, Star, CheckCircle } from 'lucide-react';
+import { Award, Shield, Clock, Star, CheckCircle } from 'lucide-react';
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-primary py-16">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex justify-center mb-6">
-            <Wrench className="h-16 w-16 text-primary-foreground" />
+      <section className="relative bg-hero-bg text-hero-text py-20">
+        <div className="relative container mx-auto px-6">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <span className="block text-white">About</span>
+              <span className="block text-hero-text">Our Website</span>
+            </h1>
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+              Computer repair and cybersecurity services with a commitment to excellence.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-primary-foreground mb-4">
-            About Our Website
-          </h1>
-          <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-            Computer repair and cybersecurity services with a commitment to excellence.
-          </p>
         </div>
-      </div>
+      </section>
+
+      <div className="h-px bg-white/20"></div>
 
       {/* Content */}
       <div className="container mx-auto px-6 py-16">
