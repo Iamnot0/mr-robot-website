@@ -109,11 +109,11 @@ const ServiceCategory = () => {
               </Link>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block">{categoryName}</span>
+              <span className="block text-white">{categoryName}</span>
               <span className="block text-hero-text">Services</span>
             </h1>
             
-            <p className="text-xl text-muted-light max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
               Professional {categoryName.toLowerCase()} designed for your specific needs.
             </p>
           </div>
@@ -129,7 +129,7 @@ const ServiceCategory = () => {
                 Available Services
               </h2>
             </div>
-            <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            <p className="text-xl text-foreground/70 dark:text-foreground/90 max-w-3xl mx-auto">
               Choose from our professional {categoryName.toLowerCase()} offerings.
             </p>
           </div>
@@ -146,15 +146,15 @@ const ServiceCategory = () => {
                       <div className="text-2xl font-bold text-primary">
                         {service.price} MMK
                       </div>
-                      <div className="text-sm text-foreground/60">
+                      <div className="text-sm text-foreground/60 dark:text-foreground/80">
                         ≈ ${formatPrice(service.price).usd} USD
                       </div>
-                      <div className="text-sm text-foreground/60">{service.duration}</div>
+                      <div className="text-sm text-foreground/60 dark:text-foreground/80">{service.duration}</div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="text-foreground/70 mb-6 text-sm leading-relaxed">
+                  <CardDescription className="text-foreground/70 dark:text-foreground/90 mb-6 text-sm leading-relaxed">
                     {service.description}
                   </CardDescription>
                   <div className="flex justify-end">
