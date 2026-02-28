@@ -220,10 +220,10 @@ const Knowledge = () => {
 
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block text-white">Knowledge Center</span>
+              <span className="block text-hero-text">Knowledge Center</span>
             </h1>
             
-            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/90 max-w-3xl mb-8">
               Tech Articles, tutorials, and insights for the tech-savvy. 
               Learn from real-world experience and industry best practices.
             </p>

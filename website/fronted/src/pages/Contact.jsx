@@ -341,10 +341,10 @@ const Contact = () => {
         <div className="relative container mx-auto px-6">
           <div className="max-w-4xl">
             <h1 id="contact-hero-title" className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block text-white">Contact Us</span>
+              <span className="block text-hero-text">Contact Us</span>
             </h1>
             
-            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/90 max-w-3xl mb-8">
               Get professional computer repair support. Contact us for immediate assistance, 
               book a service appointment, or request emergency support.
             </p>

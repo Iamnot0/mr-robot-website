@@ -9,10 +9,10 @@ const About = () => {
         <div className="relative container mx-auto px-6">
           <div className="max-w-4xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block text-white">About</span>
-              <span className="block text-hero-text">Our Website</span>
+              <span className="block text-hero-text">About</span>
+              <span className="block text-hero-text/90">Our Website</span>
             </h1>
-            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/90 max-w-3xl mb-8">
               Computer repair and cybersecurity services with a commitment to excellence.
             </p>
           </div>

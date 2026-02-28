@@ -101,8 +101,8 @@ const Home = () => {
           <div className="max-w-4xl">
             <div className="mb-8">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-                <span className="block text-white">MR-ROBOT</span>
-                <span className="block text-hero-text/80">Computer Repair with a Smile</span>
+                <span className="block text-hero-text">MR-ROBOT</span>
+                <span className="block text-hero-text/90">Computer Repair with a Smile</span>
                 <span className="block text-lg md:text-xl font-normal text-hero-subtext mt-4">
                   Trushworthy. Reliable. Expert Solutions.
                 </span>
