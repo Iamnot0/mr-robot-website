@@ -45,8 +45,8 @@ const Footer = () => {
               <Link to="/contact" className="text-footer-text hover:text-footer-hover transition-colors font-medium">
                 Contact
               </Link>
-              <Link to="/login" className="text-footer-text hover:text-footer-hover transition-colors font-medium">
-                Client Portal
+              <Link to="/track" className="text-footer-text hover:text-footer-hover transition-colors font-medium">
+                Track Repair
               </Link>
               <Link to="/about" className="text-footer-text hover:text-footer-hover transition-colors font-medium">
                 About

@@ -5,14 +5,12 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
-import { useAuth } from '../components/AuthContext';
 import { formatPrice } from '../utils/currency';
 
 const ServiceCategory = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState('');

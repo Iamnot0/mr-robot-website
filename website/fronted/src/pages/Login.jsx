@@ -3,268 +3,203 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Card, CardContent, CardHeader } from '../ui/card';
-import { ArrowLeft, Eye, EyeOff, User, Lock } from 'lucide-react';
-import { API_BASE_URL } from '../utils/config';
-import { useAuth } from '../components/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { ArrowLeft, Search, Package } from 'lucide-react';
+import { API_ENDPOINTS } from '../utils/config';
 
-const Login = () => {
-  const { login, register } = useAuth();
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const STATUS_LABELS = {
+  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
+  confirmed: { label: 'Confirmed', color: 'bg-blue-100 text-blue-800' },
+  in_progress: { label: 'In Progress', color: 'bg-orange-100 text-orange-800' },
+  completed: { label: 'Completed', color: 'bg-green-100 text-green-800' },
+  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800' },
+};
+
+const TrackRepair = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    setError('');
-  };
-
-  const handleSubmit = async (e) => {
+  const handleTrack = async (e) => {
     e.preventDefault();
+    if (!query.trim()) return;
+
     setLoading(true);
     setError('');
+    setResults(null);
 
     try {
-      if (isSignUp) {
-        if (formData.password !== formData.confirmPassword) {
-          setError('Passwords do not match');
-          setLoading(false);
-          return;
-        }
+      const isEmail = query.includes('@');
+      const param = isEmail ? `email=${encodeURIComponent(query)}` : `booking_id=${query}`;
+      const response = await fetch(`${API_ENDPOINTS.BOOKINGS_TRACK}?${param}`);
+      const data = await response.json();
 
-        // Use AuthContext register function
-        const result = await register({
-          name: formData.username,
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (result.success) {
-          navigate('/userDashboard');
-        }
+      if (data.success) {
+        setResults(data.data);
       } else {
-        // Use AuthContext login function
-        const result = await login({
-          email: formData.username, // using username field as email for sign-in
-          password: formData.password,
-        });
-
-        if (result.success) {
-          navigate('/userDashboard');
-        }
+        setError(data.message || 'No bookings found.');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'Network error. Please try again.');
+      setError('Unable to connect. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
 
-    return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Back to Home Link */}
-      <Link 
-        to="/" 
-        className="absolute top-6 left-6 flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Home</span>
-      </Link>
-
-
-      {/* Main Login Card */}
-      <Card className="w-full max-w-md max-sm:max-w-sm bg-card shadow-lg rounded-2xl border-border">
-        <CardHeader className="text-center pb-6">
-          {/* Logo */}
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <img 
-                src="/logo.png"
-                alt="MR-ROBOT Logo"
-              className="w-10 h-10 object-contain"
-                onError={(e) => {
-                  e.target.src = '/logo (copy 1).png';
-                }}
-              />
-            </div>
-          
-          {/* Title */}
-          <h1 className="text-2xl font-bold text-foreground mb-1">
-            MR ROBOT
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-sm text-muted-foreground">
-            {isSignUp ? 'Create Account' : 'Client Portal'}
-          </p>
-        </CardHeader>
-
-        <CardContent className="px-8 pb-8">
-          {/* Tabs */}
-          <div className="flex space-x-4 mb-6">
-            <button
-              onClick={() => setIsSignUp(false)}
-              className={`pb-2 text-sm font-medium transition-colors border-b-2 ${
-                !isSignUp 
-                  ? 'text-primary border-primary' 
-                  : 'text-muted-foreground border-transparent hover:text-foreground'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setIsSignUp(true)}
-              className={`pb-2 text-sm font-medium transition-colors border-b-2 ${
-                isSignUp 
-                  ? 'text-primary border-primary' 
-                  : 'text-muted-foreground border-transparent hover:text-foreground'
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg">
-              <p className="text-error text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
-              <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground font-medium">
-                Username
-              </Label>
-                <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                  id="username"
-                  name="username"
-                    type="text"
-                  value={formData.username}
-                    onChange={handleInputChange}
-                  className="w-full pl-10 border-border focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                  placeholder="Enter your username"
-                    required
-                  />
-                </div>
-              </div>
-
-            {/* Email (Sign Up only) */}
-            {isSignUp && (
-            <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full border-border focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground font-medium">
-                Password
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-10 border-border focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                  placeholder="Enter your password"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            {/* Confirm Password (Sign Up only) */}
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-foreground font-medium">
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-10 border-border focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                    placeholder="Confirm your password"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-1 top-1 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-semibold transition-all"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
-            </Button>
-          </form>
-
-          {/* Footer Note */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              All login activities are monitored for security purposes.
+  return (
+    <div className="min-h-screen bg-background">
+      <section className="relative bg-hero-bg text-hero-text py-20">
+        <div className="relative container mx-auto px-6">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <span className="block text-white">Track Your</span>
+              <span className="block text-hero-text">Repair</span>
+            </h1>
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
+              Enter your booking ID or email address to check your repair status.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
+
+      <div className="h-px bg-white/20"></div>
+
+      <section className="py-16 bg-muted-light">
+        <div className="container mx-auto px-6">
+          <div className="max-w-xl mx-auto">
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Package className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-2xl text-foreground">Find Your Booking</CardTitle>
+                <CardDescription>
+                  Use the booking ID from your receipt, or the email you used when booking.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="px-8 pb-8">
+                <form onSubmit={handleTrack} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="track-query" className="text-foreground font-medium">
+                      Booking ID or Email
+                    </Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="track-query"
+                        type="text"
+                        value={query}
+                        onChange={(e) => { setQuery(e.target.value); setError(''); }}
+                        className="pl-10 border-border"
+                        placeholder="e.g. 42 or your@email.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3"
+                    disabled={loading}
+                  >
+                    {loading ? 'Searching...' : 'Track Repair'}
+                  </Button>
+                </form>
+
+                {error && (
+                  <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {error}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {results && results.length > 0 && (
+              <div className="mt-8 space-y-4">
+                <h2 className="text-xl font-bold text-foreground">
+                  {results.length === 1 ? 'Your Booking' : `Your Bookings (${results.length})`}
+                </h2>
+                {results.map((booking) => {
+                  const status = STATUS_LABELS[booking.status] || STATUS_LABELS.pending;
+                  return (
+                    <Card key={booking.id} className="border shadow-sm">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Booking #{booking.id}</p>
+                            <h3 className="text-lg font-bold text-foreground">
+                              {booking.service_name || 'Service'}
+                            </h3>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
+                            {status.label}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          {booking.device_type && (
+                            <div>
+                              <p className="text-muted-foreground">Device</p>
+                              <p className="font-medium text-foreground">{booking.device_type}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-muted-foreground">Booked</p>
+                            <p className="font-medium text-foreground">
+                              {new Date(booking.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {booking.preferred_date && (
+                            <div>
+                              <p className="text-muted-foreground">Preferred Date</p>
+                              <p className="font-medium text-foreground">
+                                {new Date(booking.preferred_date).toLocaleDateString()}
+                              </p>
+                            </div>
+                          )}
+                          {booking.service_price && (
+                            <div>
+                              <p className="text-muted-foreground">Price</p>
+                              <p className="font-medium text-foreground">
+                                {Number(booking.service_price).toLocaleString()} MMK
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {booking.issue_description && (
+                          <div className="mt-4 pt-4 border-t border-border">
+                            <p className="text-sm text-muted-foreground">Issue</p>
+                            <p className="text-sm text-foreground">{booking.issue_description}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="mt-8 text-center">
+              <p className="text-sm text-muted-foreground mb-3">
+                Don't have a booking yet?
+              </p>
+              <Link to="/contact">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  Book a Service
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="h-px bg-tan/30"></div>
     </div>
   );
 };
 
-export default Login;
+export default TrackRepair;

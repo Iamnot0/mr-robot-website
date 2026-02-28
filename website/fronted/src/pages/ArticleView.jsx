@@ -35,14 +35,6 @@ const ArticleView = () => {
         
         if (data.success && data.data) {
           setArticle(data.data);
-          // Debug external link
-          console.log('🔍 Article loaded:', {
-            title: data.data.title,
-            external_link: data.data.external_link,
-            has_content: !!data.data.content,
-            content_length: data.data.content ? data.data.content.length : 0
-          });
-          // Scroll to top when article loads
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           throw new Error('Failed to load article');
@@ -234,15 +226,7 @@ const ArticleView = () => {
               )}
               
               {/* External Link at the end of article content */}
-              {(() => {
-                console.log('🔍 Button display check:', {
-                  has_external_link: !!article.external_link,
-                  has_content: !!article.content,
-                  external_link: article.external_link,
-                  should_show: !!(article.external_link && article.content)
-                });
-                return article.external_link && article.content;
-              })() && (
+              {article.external_link && article.content && (
                 <div className="mt-8 pt-6 border-t border-border">
                   <div className="flex items-center justify-center">
                     <Button 

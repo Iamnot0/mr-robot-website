@@ -52,8 +52,6 @@ router.post('/', [
       user_id
     } = req.body;
     
-    console.log('Creating booking with user_id:', user_id);
-
     // Create new booking in database
     const result = await executeQuery(
       `INSERT INTO bookings (
@@ -98,9 +96,69 @@ router.post('/', [
 });
 
 // ========================================
+// TRACK BOOKING (Public — by booking ID or customer email)
+// ========================================
+router.get('/track', async (req, res) => {
+  try {
+    const { email, booking_id } = req.query;
+
+    if (!email && !booking_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a booking ID or email address.'
+      });
+    }
+
+    let bookings;
+    if (booking_id) {
+      bookings = await executeQuery(`
+        SELECT b.id, b.customer_name, b.status, b.urgency, b.device_type,
+               b.issue_description, b.preferred_date, b.created_at, b.updated_at,
+               s.name as service_name, s.price as service_price
+        FROM bookings b
+        LEFT JOIN services s ON b.service_id = s.id
+        WHERE b.id = $1 AND b.deleted_at IS NULL
+      `, [parseInt(booking_id)]);
+    } else {
+      bookings = await executeQuery(`
+        SELECT b.id, b.customer_name, b.status, b.urgency, b.device_type,
+               b.issue_description, b.preferred_date, b.created_at, b.updated_at,
+               s.name as service_name, s.price as service_price
+        FROM bookings b
+        LEFT JOIN services s ON b.service_id = s.id
+        WHERE LOWER(b.customer_email) = LOWER($1) AND b.deleted_at IS NULL
+        ORDER BY b.created_at DESC
+      `, [email]);
+    }
+
+    if (bookings.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: booking_id
+          ? 'No booking found with that ID.'
+          : 'No bookings found for that email address.'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: bookings,
+      message: `Found ${bookings.length} booking(s).`
+    });
+  } catch (error) {
+    console.error('Track booking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to look up booking. Please try again.'
+    });
+  }
+});
+
+// ========================================
 // GET ALL BOOKINGS (Admin) - Excludes soft-deleted bookings
 // ========================================
-router.get('/', async (req, res) => {
+const { verifyToken, requireAdmin } = require('../middleware/auth');
+router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { status, urgency, limit = 50, offset = 0 } = req.query;
     
@@ -167,8 +225,6 @@ router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
-    console.log('Fetching bookings for user ID:', userId);
-    
     // First try with deleted_at column, fallback if it doesn't exist
     let bookings;
     try {
@@ -184,7 +240,6 @@ router.get('/user/:userId', async (req, res) => {
         ORDER BY b.created_at DESC
       `, [userId]);
     } catch (error) {
-      console.log('deleted_at column not found, using fallback query');
       // Fallback query without deleted_at column
       bookings = await executeQuery(`
         SELECT b.*, s.name as service_name, s.price as service_price,
@@ -195,8 +250,6 @@ router.get('/user/:userId', async (req, res) => {
         ORDER BY b.created_at DESC
       `, [userId]);
     }
-    
-    console.log('Found bookings:', bookings.length);
     
     res.json({
       success: true,
@@ -255,7 +308,7 @@ router.get('/:id', async (req, res) => {
 // ========================================
 // UPDATE BOOKING STATUS
 // ========================================
-router.patch('/:id', [
+router.patch('/:id', verifyToken, requireAdmin, [
   body('status').optional().isIn(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']),
   body('cost').optional().isFloat({ min: 0 }),
   body('notes').optional().isString()
@@ -322,7 +375,7 @@ router.patch('/:id', [
 // ========================================
 // GET BOOKING STATISTICS
 // ========================================
-router.get('/stats/summary', async (req, res) => {
+router.get('/stats/summary', verifyToken, requireAdmin, async (req, res) => {
   try {
     const stats = await executeQuery(`
       SELECT 

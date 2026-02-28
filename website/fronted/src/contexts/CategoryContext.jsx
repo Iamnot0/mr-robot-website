@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../utils/config';
-import { useAuth } from '../components/AuthContext';
-
 const CategoryContext = createContext();
 
 export const useCategories = () => {
@@ -13,7 +11,6 @@ export const useCategories = () => {
 };
 
 export const CategoryProvider = ({ children }) => {
-  const { user } = useAuth();
   const [serviceCategories, setServiceCategories] = useState([]);
   const [knowledgeCategories, setKnowledgeCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +18,6 @@ export const CategoryProvider = ({ children }) => {
 
   const fetchCategories = async () => {
     try {
-      console.log('CategoryContext - fetchCategories called');
       setLoading(true);
       
          // Try to fetch service categories with proper error handling
@@ -55,9 +51,6 @@ export const CategoryProvider = ({ children }) => {
             try {
               const knowledgeData = JSON.parse(responseText);
               if (knowledgeData.success && knowledgeData.data && knowledgeData.data.articles) {
-            console.log('CategoryContext - API response:', knowledgeData);
-            console.log('CategoryContext - Articles:', knowledgeData.data.articles);
-            // Extract unique categories from articles
             const categories = [...new Set(knowledgeData.data.articles.map(article => article.category))].map(category => ({
               id: category.toLowerCase().replace(/\s+/g, '-'),
               name: category,
@@ -67,7 +60,6 @@ export const CategoryProvider = ({ children }) => {
               is_active: true,
               sort_order: 0
             }));
-                console.log('CategoryContext - Extracted categories:', categories);
                 setKnowledgeCategories(categories);
               } else {
                 setFallbackCategories();

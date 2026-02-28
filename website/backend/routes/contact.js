@@ -78,7 +78,8 @@ router.post('/submit', [
 // ========================================
 // GET CONTACT SUBMISSIONS (Admin)
 // ========================================
-router.get('/submissions', async (req, res) => {
+const { verifyToken, requireAdmin } = require('../middleware/auth');
+router.get('/submissions', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { status, limit = 50, offset = 0 } = req.query;
     
@@ -132,7 +133,7 @@ router.get('/submissions', async (req, res) => {
 // ========================================
 // UPDATE CONTACT SUBMISSION STATUS
 // ========================================
-router.patch('/submissions/:id', [
+router.patch('/submissions/:id', verifyToken, requireAdmin, [
   body('status').isIn(['new', 'contacted', 'resolved']).withMessage('Invalid status')
 ], async (req, res) => {
   try {
@@ -178,7 +179,7 @@ router.patch('/submissions/:id', [
 // ========================================
 // GET CONTACT STATISTICS
 // ========================================
-router.get('/stats', async (req, res) => {
+router.get('/stats', verifyToken, requireAdmin, async (req, res) => {
   try {
     const stats = await executeQuery(`
       SELECT 

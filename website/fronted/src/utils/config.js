@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
   // Contact endpoints
   CONTACT_SUBMIT: `${API_BASE_URL}/api/contact/submit`,
   BOOKINGS: `${API_BASE_URL}/api/bookings`,
+  BOOKINGS_TRACK: `${API_BASE_URL}/api/bookings/track`,
   
   // Auth endpoints
   ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,

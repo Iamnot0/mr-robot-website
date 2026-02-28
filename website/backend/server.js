@@ -158,20 +158,16 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/articles', require('./routes/articles').router);
 app.use('/api/admin', adminLimiter, require('./routes/admin'));
-app.use('/api/crm', require('./routes/crm'));
-app.use('/api/financial', require('./routes/financial'));
 
 /* Enhanced health check endpoint */
 app.get('/api/health', async (req, res) => {
   try {
-    console.log('🔍 Health check requested');
     const healthData = {
       status: 'OK',
       message: 'MR-ROBOT Computer Repair API is running',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       server: 'Running',
-      port: PORT,
       database: 'Unknown'
     };
 
@@ -180,26 +176,20 @@ app.get('/api/health', async (req, res) => {
         const result = await pool.query('SELECT NOW()');
         healthData.database = 'Connected';
         healthData.dbTime = result.rows[0].now;
-        console.log('✅ Database connection OK');
       } catch (dbError) {
-        console.error('❌ Database connection failed:', dbError);
+        console.error('Database health check failed:', dbError.message);
         healthData.database = 'Error';
-        healthData.dbError = dbError.message;
       }
     } else {
       healthData.database = 'Not initialized';
-      console.log('⚠️ Database pool not initialized');
     }
 
-    console.log('🔍 Health check response:', healthData);
     res.json(healthData);
   } catch (error) {
-    console.error('❌ Health check failed:', error);
+    console.error('Health check failed:', error.message);
     res.status(500).json({ 
       status: 'ERROR', 
-      timestamp: new Date().toISOString(),
-      error: error.message,
-      stack: error.stack
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -252,135 +242,34 @@ app.use((err, req, res, next) => {
 });
 
 /* SERVER START */
-// Setup user01 endpoint
-app.post('/api/setup-user01', async (req, res) => {
-  try {
-    const { executeQuery } = require('./database/connection');
-    const bcrypt = require('bcryptjs');
-
-    // Check if user01 already exists
-    const existingUsers = await executeQuery('SELECT * FROM users WHERE email = $1', ['user01@gmail.com']);
-
-    if (existingUsers.length > 0) {
-      return res.json({
-        success: true,
-        message: 'User01 already exists',
-        user: existingUsers[0]
-      });
-    }
-
-    // Create user01 with password "user123"
-    const passwordHash = await bcrypt.hash('user123', 12);
-
-    const result = await executeQuery(`
-      INSERT INTO users (name, email, password_hash, role, status)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `, ['User01', 'user01@gmail.com', passwordHash, 'client', 'active']);
-
-    res.json({
-      success: true,
-      message: 'User01 created successfully',
-      user: result[0]
-    });
-
-  } catch (error) {
-    console.error('Setup user01 error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create user01',
-      error: error.message
-    });
-  }
-});
-
-// List all users endpoint
-app.get('/api/list-users', async (req, res) => {
-  try {
-    const { executeQuery } = require('./database/connection');
-
-    const users = await executeQuery('SELECT id, name, email, role, status, created_at FROM users ORDER BY created_at');
-
-    res.json({
-      success: true,
-      data: users,
-      message: 'Users retrieved successfully'
-    });
-
-  } catch (error) {
-    console.error('List users error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to list users',
-      error: error.message
-    });
-  }
-});
-
 const startServer = async () => {
   try {
-    console.log('🔧 Starting server initialization...');
-    console.log('📊 Environment check:', {
-      NODE_ENV: process.env.NODE_ENV,
-      DB_HOST: process.env.DB_HOST ? '✅ Set' : '❌ Missing',
-      DB_NAME: process.env.DB_NAME ? '✅ Set' : '❌ Missing',
-      DB_USER: process.env.DB_USER ? '✅ Set' : '❌ Missing',
-      DB_PASSWORD: process.env.DB_PASSWORD ? '✅ Set' : '❌ Missing',
-      JWT_SECRET: process.env.JWT_SECRET ? '✅ Set' : '❌ Missing',
-      PORT: PORT
-    });
-    
     pool = await initializeDatabase();
-    console.log('✅ Database initialized successfully');
     
     const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 MR-ROBOT Computer Repair API running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-      console.log(`🔗 Server listening on 0.0.0.0:${PORT}`);
+      console.log(`MR-ROBOT API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
     });
 
-    // Graceful shutdown handling
     process.on('SIGTERM', () => {
-      console.log('🛑 SIGTERM received, shutting down gracefully');
-      server.close(() => {
-        console.log('👋 Process terminated');
-      });
+      server.close(() => process.exit(0));
     });
 
     process.on('SIGINT', () => {
-      console.log('🛑 SIGINT received, shutting down gracefully');
-      server.close(() => {
-        console.log('👋 Process terminated');
-      });
+      server.close(() => process.exit(0));
     });
     
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    console.error('❌ Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
+    console.error('Failed to start server:', error.message);
     process.exit(1);
   }
 };
 
-// Global error handlers to prevent server crashes
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-  console.error('❌ Stack:', error.stack);
-  // Don't exit the process in production, just log the error
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
+  console.error('Uncaught Exception:', error.message);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-  // Don't exit the process in production, just log the error
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
 });
 
 startServer();

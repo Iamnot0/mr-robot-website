@@ -7,7 +7,6 @@ import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
 import { useToast } from '../hooks/use-toast';
-import { useAuth } from '../components/AuthContext';
 import BookingReceipt from '../components/BookingReceipt';
 import { 
   MapPin, 
@@ -21,7 +20,6 @@ import {
 } from 'lucide-react';
 
 const Contact = () => {
-  const { user } = useAuth();
   const location = useLocation();
   
   // SEO and SEM Optimization
@@ -76,12 +74,8 @@ const Contact = () => {
         service_id: service.id,
         device_type: '',
         issue_description: `I would like to book: ${service.name}`,
-        customer_name: user?.name || '',
-        customer_email: user?.email || '',
-        customer_phone: user?.phone || ''
       }));
 
-      // Scroll to booking form after rendering
       setTimeout(() => {
         const formSection = document.getElementById('contact-forms-title');
         if (formSection) {
@@ -89,7 +83,7 @@ const Contact = () => {
         }
       }, 300);
     }
-  }, [location.state, user]);
+  }, [location.state]);
   const [activeTab, setActiveTab] = useState('booking');
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -278,7 +272,6 @@ const Contact = () => {
         body: JSON.stringify({
           ...bookingForm,
           service_id: parseInt(bookingForm.service_id),
-          user_id: user?.id || null
         })
       });
 
