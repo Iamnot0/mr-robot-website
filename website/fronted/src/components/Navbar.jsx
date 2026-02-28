@@ -41,11 +41,11 @@ const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center group">
-            <div className="w-16 h-16 flex items-center justify-center">
+            <div className="w-16 h-16 flex items-center justify-center rounded-full bg-white">
               <img 
                 src="/logo.png"  
                 alt="MR-ROBOT Logo"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain rounded-full"
               />
             </div>
           </Link>

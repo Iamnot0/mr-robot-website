@@ -21,12 +21,9 @@ const Footer = () => {
             {/* Logo and Company Name */}
             <div className="flex items-center space-x-4">
               <img 
-                src="/logo (copy 1).png"
+                src="/logo.png"
                 alt="MR-ROBOT Logo"
-                className="w-16 h-16 object-contain"
-                onError={(e) => {
-                  e.target.src = '/logo.png';
-                }}
+                className="w-16 h-16 object-contain rounded-full bg-white"
               />
               <div>
                 <h3 className="text-2xl font-bold text-footer-text">MR-ROBOT</h3>

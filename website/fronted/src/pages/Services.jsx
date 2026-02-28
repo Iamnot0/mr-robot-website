@@ -45,10 +45,10 @@ const Services = () => {
         <div className="relative container mx-auto px-6">
           <div className="max-w-4xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block text-hero-text">Our</span>
-              <span className="block text-hero-text/90">Services</span>
+              <span className="block text-white">Our</span>
+              <span className="block text-hero-text">Services</span>
             </h1>
-            <p className="text-xl text-hero-text/90 max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
               Professional repair and tech solutions — pick a service and book directly.
             </p>
           </div>
@@ -94,12 +94,12 @@ const Services = () => {
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 flex flex-col">
-                          <p className="text-foreground/60 text-sm mb-4 flex-1">
+                          <p className="text-foreground/60 dark:text-foreground/90 text-sm mb-4 flex-1">
                             {service.description}
                           </p>
 
                           {service.features && service.features.length > 0 && (
-                            <ul className="text-sm text-foreground/60 mb-4 space-y-1">
+                            <ul className="text-sm text-foreground/60 dark:text-foreground/90 mb-4 space-y-1">
                               {service.features.slice(0, 3).map((f, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                   <span className="text-tan font-bold mt-0.5">✓</span>
@@ -114,7 +114,7 @@ const Services = () => {
                               <div className="text-xl font-bold text-primary">
                                 {Number(service.price).toLocaleString()} MMK
                               </div>
-                              <div className="text-xs text-foreground/50">
+                              <div className="text-xs text-foreground/50 dark:text-foreground/80">
                                 ≈ ${formatPrice(service.price).usd} USD · {service.duration}
                               </div>
                             </div>

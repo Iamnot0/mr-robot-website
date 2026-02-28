@@ -1869,12 +1869,9 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
                 <img
-                  src="/logo (copy 1).png"
+                  src="/logo.png"
                   alt="MR-ROBOT Admin Logo"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.target.src = '/logo.png';
-                  }}
+                  className="w-full h-full object-contain rounded-full bg-white"
                 />
               </div>
               <div>

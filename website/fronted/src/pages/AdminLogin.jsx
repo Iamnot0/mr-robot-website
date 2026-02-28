@@ -73,14 +73,11 @@ const AdminLogin = () => {
         <CardHeader className="text-center pb-6">
           
           {/* Logo */}
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white flex items-center justify-center">
             <img 
               src="/logo.png"
               alt="Admin Logo"
               className="w-10 h-10 object-contain"
-              onError={(e) => {
-                e.target.src = '/logo (copy 1).png';
-              }}
             />
           </div>
           

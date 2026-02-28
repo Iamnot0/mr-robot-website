@@ -9,13 +9,13 @@ const Terms = () => {
         <div className="relative container mx-auto px-6">
           <div className="max-w-4xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              <span className="block text-hero-text">Terms of</span>
-              <span className="block text-hero-text/90">Service</span>
+              <span className="block text-white">Terms of</span>
+              <span className="block text-hero-text">Service</span>
             </h1>
-            <p className="text-xl text-hero-text/90 max-w-3xl mb-8">
+            <p className="text-xl text-hero-text/80 max-w-3xl mb-8">
               Please read these terms carefully before using our computer repair services.
             </p>
-            <p className="text-sm text-hero-text/80">
+            <p className="text-sm text-hero-text/60">
               Last updated: {new Date().toLocaleDateString()}
             </p>
           </div>
