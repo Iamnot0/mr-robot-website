@@ -462,5 +462,24 @@
    }
    
    .dark .admin-content-area {
-     background-color: #000000;
-}
+     background-color: #0a1628;
+   }
+
+   /* Admin sidebar dark mode — slightly lighter than content for separation */
+   .dark .admin-sidebar {
+     background-color: #0f1f38;
+     border-color: #1a3a5c;
+   }
+
+   /* Admin header dark mode — darkest layer for visual anchoring */
+   .dark .admin-header {
+     background-color: #060e1c;
+     border-bottom: 1px solid #1a3a5c;
+   }
+
+   /* Admin cards in dark mode — elevated surface with visible border */
+   .dark .admin-content-area .bg-card,
+   .dark .admin-content-area [class*="rounded-lg"][class*="border"] {
+     background-color: #0f1f38;
+     border-color: #1a3a5c;
+   }

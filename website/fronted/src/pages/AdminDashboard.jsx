@@ -36,8 +36,6 @@ import { useCategories } from '../contexts/CategoryContext';
 import { API_ENDPOINTS, getServiceUrl, getCategoryUrl } from '../utils/config';
 import { formatPrice } from '../utils/currency';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import CRMDashboard from './CRMDashboard';
-import FinancialDashboard from './FinancialDashboard';
 import DatabaseManager from '../components/DatabaseManager';
 
 const AdminDashboard = () => {
@@ -469,8 +467,6 @@ const AdminDashboard = () => {
     
     try {
       const token = localStorage.getItem('adminToken');
-      console.log('Token for category creation:', token ? 'Token exists' : 'No token');
-      console.log('Token length:', token ? token.length : 0);
       
       if (categoryForm.type === 'services') {
         const url = editingCategory 
@@ -737,8 +733,6 @@ const AdminDashboard = () => {
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'bookings', label: 'Booking Management', icon: Calendar },
     { id: 'contacts', label: 'Contact Forms', icon: Mail },
-    { id: 'crm', label: 'CRM Dashboard', icon: Users },
-    { id: 'financial', label: 'Financial Management', icon: BarChart3 },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'database', label: 'Database Management', icon: Database },
     { id: 'settings', label: 'Settings', icon: Settings }
@@ -867,7 +861,7 @@ const AdminDashboard = () => {
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="font-medium truncate">{article.title}</p>
-                    <p className="text-sm text-mr-charcoal/60">
+                    <p className="text-sm text-muted-foreground">
                       {article.published_at 
                         ? new Date(article.published_at).toLocaleDateString() 
                         : new Date(article.created_at).toLocaleDateString()
@@ -877,7 +871,7 @@ const AdminDashboard = () => {
                 </div>
               ))}
               {(!Array.isArray(articles) || articles.length === 0) && (
-                <p className="text-sm text-mr-charcoal/60">No articles available</p>
+                <p className="text-sm text-muted-foreground">No articles available</p>
               )}
             </div>
           </CardContent>
@@ -937,7 +931,7 @@ const AdminDashboard = () => {
                 </div>
                                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Category:</span>
-                    <span className="text-sm text-mr-charcoal">{service.category}</span>
+                    <span className="text-sm text-foreground">{service.category}</span>
                   </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Status:</span>
@@ -955,10 +949,6 @@ const AdminDashboard = () => {
 
   const renderCategories = () => {
     const currentCategories = selectedCategoryType === 'services' ? serviceCategories : knowledgeCategories;
-    console.log('AdminDashboard - selectedCategoryType:', selectedCategoryType);
-    console.log('AdminDashboard - serviceCategories:', serviceCategories);
-    console.log('AdminDashboard - knowledgeCategories:', knowledgeCategories);
-    console.log('AdminDashboard - currentCategories:', currentCategories);
     
     return (
       <div className="space-y-6">
@@ -997,11 +987,11 @@ const AdminDashboard = () => {
         <div className="bg-muted border border-border rounded-lg p-4">
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full ${selectedCategoryType === 'services' ? 'bg-primary' : 'bg-secondary'}`}></div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               Managing {selectedCategoryType === 'services' ? 'Service' : 'Knowledge'} Categories
             </span>
           </div>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {selectedCategoryType === 'services' 
               ? 'Service categories organize your repair and technical services'
               : 'Knowledge categories organize your articles and tutorials'
@@ -1066,15 +1056,15 @@ const AdminDashboard = () => {
         {categoriesLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">Loading categories...</h3>
+            <h3 className="text-lg font-semibold text-muted-foreground mb-2">Loading categories...</h3>
           </div>
         ) : currentCategories.length === 0 && (
           <div className="text-center py-12">
-            <Database className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">
+            <Database className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-muted-foreground mb-2">
               No {selectedCategoryType} categories found
             </h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-muted-foreground/70 mb-4">
               {selectedCategoryType === 'services' 
                 ? 'Create your first service category to organize your services'
                 : 'Knowledge categories are automatically created from your articles'
@@ -1148,7 +1138,7 @@ const AdminDashboard = () => {
                           {article.is_published ? 'Published' : 'Draft'}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">
+                      <td className="py-3 px-4 text-sm text-muted-foreground">
                         {new Date(article.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4">
@@ -1192,9 +1182,9 @@ const AdminDashboard = () => {
       ) : (
         <Card>
           <CardContent className="text-center py-12">
-            <FileText className="h-16 w-16 text-mr-charcoal/30 mx-auto mb-4" />
-            <p className="text-mr-charcoal/70 text-lg">No articles available</p>
-            <p className="text-mr-charcoal/50 text-sm mt-2">Create your first article to get started</p>
+            <FileText className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg">No articles available</p>
+            <p className="text-muted-foreground/60 text-sm mt-2">Create your first article to get started</p>
           </CardContent>
         </Card>
       )}
@@ -1280,8 +1270,8 @@ const AdminDashboard = () => {
         ))
         ) : (
           <div className="col-span-full text-center py-12">
-            <p className="text-mr-charcoal/70 text-lg">No users registered yet.</p>
-            <p className="text-mr-charcoal/50 text-sm mt-2">Users will appear here when they register through the client portal.</p>
+            <p className="text-muted-foreground text-lg">No users registered yet.</p>
+            <p className="text-muted-foreground/60 text-sm mt-2">Users will appear here when they register through the client portal.</p>
           </div>
         )}
       </div>
@@ -1528,8 +1518,8 @@ const AdminDashboard = () => {
           ))
         ) : (
           <div className="text-center py-12">
-            <p className="text-mr-charcoal/70 text-lg">No bookings available</p>
-            <p className="text-mr-charcoal/50 text-sm mt-2">Bookings will appear here when customers submit service requests</p>
+            <p className="text-muted-foreground text-lg">No bookings available</p>
+            <p className="text-muted-foreground/60 text-sm mt-2">Bookings will appear here when customers submit service requests</p>
           </div>
         )}
       </div>
@@ -1633,7 +1623,7 @@ const AdminDashboard = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">Message #{contact.id}</CardTitle>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {new Date(contact.created_at).toLocaleDateString()}
                   </div>
                 </div>
@@ -1744,8 +1734,8 @@ const AdminDashboard = () => {
           ))
         ) : (
           <div className="text-center py-12">
-            <p className="text-mr-charcoal/70 text-lg">No contact submissions</p>
-            <p className="text-mr-charcoal/50 text-sm mt-2">Contact form submissions will appear here when customers send messages</p>
+            <p className="text-muted-foreground text-lg">No contact submissions</p>
+            <p className="text-muted-foreground/60 text-sm mt-2">Contact form submissions will appear here when customers send messages</p>
           </div>
         )}
       </div>
@@ -1851,10 +1841,6 @@ const AdminDashboard = () => {
         return renderBookings();
       case 'contacts':
         return renderContacts();
-      case 'crm':
-        return <CRMDashboard />;
-      case 'financial':
-        return <FinancialDashboard />;
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'database':
@@ -1869,7 +1855,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Header */}
-      <div className="bg-tan dark:bg-oxford-blue text-oxford-blue dark:text-tan p-4">
+      <div className="bg-tan dark:bg-oxford-blue text-oxford-blue dark:text-tan p-4 admin-header">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -1932,7 +1918,7 @@ const AdminDashboard = () => {
 
       <div className="flex">
         {sidebarOpen && (
-          <div className="w-64 bg-tan dark:bg-oxford-blue border-r border-oxford-blue dark:border-tan min-h-screen">
+          <div className="w-64 bg-tan dark:bg-oxford-blue border-r border-oxford-blue dark:border-tan/20 min-h-screen admin-sidebar">
             <nav className="p-4">
               <ul className="space-y-2">
                 {sidebarItems.map((item) => {
